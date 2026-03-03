@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Services - Go For Events">
+    <title>Services | Go For Events</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
+        .pricing-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 40px 30px; text-align: center; transition: var(--transition); position: relative; overflow: hidden; }
+        .pricing-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: var(--primary-color); }
+        .pricing-card.premium { border-color: var(--primary-color); box-shadow: var(--shadow-md); }
+        .ribbon { position: absolute; top: 20px; right: -35px; background: var(--primary-color); color: #fff; padding: 5px 40px; transform: rotate(45deg); font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; }
+        .price { font-size: 3rem; font-family: var(--font-heading); font-weight: 700; color: var(--text-color); margin: 20px 0; }
+        .price span { font-size: 1.2rem; color: var(--text-muted); font-family: var(--font-main); }
+        .pricing-features { text-align: left; margin: 30px 0; }
+        .pricing-features li { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .pricing-features li i { color: var(--primary-color); }
+    </style>
+</head>
+<body class="inner-page">
+    <div class="loader-wrapper" id="loader"><div class="loader"></div></div>
+
+    <nav class="navbar sticky" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">GoFor<span>Events</span></a>
+            <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="services.html" class="active">Services</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="booking.html" class="btn btn-primary" style="color:white; padding: 8px 20px;">Book Now</a>
+                <a href="contact.html">Contact</a>
+                <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header" style="padding: 150px 0 50px; background-color: var(--card-bg); text-align: center;">
+        <div class="container">
+            <h1 class="hero-title reveal" style="color: var(--text-color); font-size:3rem;">Our Services</h1>
+            <p class="section-subtitle reveal">What We Do Best</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="services-grid" id="services-container">
+                <!-- Services will be injected via JS or pre-rendered here -->
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" alt="Wedding Planning" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-rings service-icon"></i>
+                        <h3>Wedding Planning</h3>
+                        <p>Fairytale weddings crafted with love, precision, and elegance from start to finish. We handle venue, catering, decor, and photography.</p>
+                    </div>
+                </div>
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2000&auto=format&fit=crop" alt="Corporate" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-briefcase service-icon"></i>
+                        <h3>Corporate Events</h3>
+                        <p>Professional setup for conferences, galas, and product launches. Immersive setups tailored for your brand.</p>
+                    </div>
+                </div>
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1472653431158-6364773b2a56?q=80&w=2069&auto=format&fit=crop" alt="Birthday Parties" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-birthday-cake service-icon"></i>
+                        <h3>Birthday Parties</h3>
+                        <p>Fun, creative, and memorable birthday celebrations for all ages with customized themes and entertainment.</p>
+                    </div>
+                </div>
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2070&auto=format&fit=crop" alt="Concerts & Festivals" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-music service-icon"></i>
+                        <h3>Concerts & Festivals</h3>
+                        <p>Large-scale concert management, including staging, lighting, artist management, and crowd control.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background-color: var(--card-bg);">
+        <div class="container text-center">
+            <h2 class="section-title reveal">Pricing Packages</h2>
+            <p class="section-subtitle reveal">Choose Your Plan</p>
+            <div class="pricing-grid">
+                <!-- Basic -->
+                <div class="pricing-card reveal">
+                    <h3>Basic Package</h3>
+                    <div class="price">$999<span>/event</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Standard Decor & Lighting</li>
+                        <li><i class="fas fa-check"></i> Sound System Setup</li>
+                        <li><i class="fas fa-check"></i> 5 Hours Event Management</li>
+                        <li><i class="fas fa-times" style="color:#d9534f"></i> Catering Services</li>
+                        <li><i class="fas fa-times" style="color:#d9534f"></i> Photography Coverage</li>
+                    </ul>
+                    <a href="booking.html" class="btn btn-outline" style="width:100%">Book Basic</a>
+                </div>
+                <!-- Standard -->
+                <div class="pricing-card premium reveal">
+                    <div class="ribbon">POPULAR</div>
+                    <h3 style="color:var(--primary-color);">Standard Package</h3>
+                    <div class="price">$2,499<span>/event</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Premium Decor & Lighting</li>
+                        <li><i class="fas fa-check"></i> DJ & Advanced Sound</li>
+                        <li><i class="fas fa-check"></i> 8 Hours Event Management</li>
+                        <li><i class="fas fa-check"></i> Buffet Catering (Up to 100)</li>
+                        <li><i class="fas fa-times" style="color:#d9534f"></i> Drone Photography</li>
+                    </ul>
+                    <a href="booking.html" class="btn btn-primary" style="width:100%">Book Standard</a>
+                </div>
+                <!-- Premium -->
+                <div class="pricing-card reveal">
+                    <h3>Premium Package</h3>
+                    <div class="price">$4,999<span>/event</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Luxury Custom Decor</li>
+                        <li><i class="fas fa-check"></i> Live Band / DJ Setup</li>
+                        <li><i class="fas fa-check"></i> Full Day Event Management</li>
+                        <li><i class="fas fa-check"></i> Premium Catering (Up to 300)</li>
+                        <li><i class="fas fa-check"></i> Full Photography & Drone</li>
+                    </ul>
+                    <a href="booking.html" class="btn btn-outline" style="width:100%">Book Premium</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <a href="https://wa.me/919864926253" target="_blank" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
+    <div class="scroll-top" id="scroll-top"><i class="fas fa-arrow-up"></i></div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Footer Same as others... -->
+                <div class="footer-col">
+                    <h3>GoForEvents</h3>
+                    <p>Creating magical and memorable events with precision and passion. Your dream event starts here.</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/share/15dEsDshfZ/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gofor_events" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://x.com/Gofor_events" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://youtube.com/@gofor_events" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.linkedin.com/in/gofor-events-b6723b345" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://pin.it/3umyIfwxE" target="_blank"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="gallery.html">Event Gallery</a></li>
+                        <li><a href="booking.html">Book an Event</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-phone-alt"></i> +91 98649 26253</p>
+                    <p><i class="fab fa-whatsapp"></i> +91 98649 26253</p>
+                    <p><i class="fas fa-envelope"></i> goforevents7@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Guwhati, Assam, India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <span id="year"></span> Go For Events. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

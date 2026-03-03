@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View our past events - Go For Events">
+    <title>Gallery | Go For Events</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .filter-btns { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; }
+        .filter-btn { padding: 8px 20px; border: 1px solid var(--primary-color); background: transparent; color: var(--text-color); border-radius: 30px; cursor: pointer; transition: var(--transition); font-weight: 500; }
+        .filter-btn.active, .filter-btn:hover { background: var(--primary-color); color: #fff; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .gallery-item { position: relative; overflow: hidden; border-radius: var(--radius); cursor: pointer; display: block; aspect-ratio: 1; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .gallery-item:hover img { transform: scale(1.1); }
+        .gallery-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; transition: var(--transition); display: flex; justify-content: center; align-items: center; }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-overlay i { color: #fff; font-size: 2rem; transform: scale(0.5); transition: 0.3s; }
+        .gallery-item:hover .gallery-overlay i { transform: scale(1); }
+        
+        /* Lightbox */
+        .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .lightbox.active { opacity: 1; pointer-events: auto; }
+        .lightbox img { max-width: 90%; max-height: 90vh; border-radius: var(--radius); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .lightbox-close { position: absolute; top: 30px; right: 40px; color: #fff; font-size: 2.5rem; cursor: pointer; transition: 0.3s; }
+        .lightbox-close:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body class="inner-page">
+    <div class="loader-wrapper" id="loader"><div class="loader"></div></div>
+
+    <nav class="navbar sticky" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">GoFor<span>Events</span></a>
+            <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="services.html">Services</a>
+                <a href="gallery.html" class="active">Gallery</a>
+                <a href="booking.html" class="btn btn-primary" style="color:white; padding: 8px 20px;">Book Now</a>
+                <a href="contact.html">Contact</a>
+                <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header" style="padding: 150px 0 50px; background-color: var(--card-bg); text-align: center;">
+        <div class="container">
+            <h1 class="hero-title reveal" style="color: var(--text-color); font-size:3rem;">Event Gallery</h1>
+            <p class="section-subtitle reveal">Our Best Moments Captured</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="filter-btns reveal">
+                <button class="filter-btn active" data-filter="all">All Events</button>
+                <button class="filter-btn" data-filter="wedding">Weddings</button>
+                <button class="filter-btn" data-filter="corporate">Corporate</button>
+                <button class="filter-btn" data-filter="party">Parties</button>
+            </div>
+            
+            <div class="gallery-grid reveal" id="gallery-container">
+                <!-- Default Images -->
+                <div class="gallery-item" data-category="wedding">
+                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" alt="Wedding">
+                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <div class="gallery-item" data-category="corporate">
+                    <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2000&auto=format&fit=crop" alt="Corporate">
+                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <div class="gallery-item" data-category="party">
+                    <img src="https://images.unsplash.com/photo-1472653431158-6364773b2a56?q=80&w=2069&auto=format&fit=crop" alt="Birthday Party">
+                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <div class="gallery-item" data-category="wedding">
+                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop" alt="Wedding Decor">
+                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <div class="gallery-item" data-category="corporate">
+                    <img src="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?q=80&w=1974&auto=format&fit=crop" alt="Conference">
+                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                </div>
+                <!-- LocalStorage items will be appended here via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightbox-close">&times;</span>
+        <img src="" alt="Fullscreen Image" id="lightbox-img">
+    </div>
+
+    <!-- Footer ... -->
+    <footer class="footer">
+        <!-- Assume standard footer here for brevity. -->
+        <div class="container text-center">
+            <p>&copy; <span id="year"></span> Go For Events. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        
+        // Gallery Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const galleryContainer = document.getElementById('gallery-container');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+
+        // Load images from local storage
+        function loadAdminImages() {
+            const stored = localStorage.getItem('goForEvents_gallery');
+            if (stored) {
+                const images = JSON.parse(stored);
+                images.forEach(imgData => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    div.setAttribute('data-category', imgData.category);
+                    div.innerHTML = `
+                        <img src="${imgData.url}" alt="${imgData.category}">
+                        <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                    `;
+                    galleryContainer.appendChild(div);
+                });
+            }
+        }
+        loadAdminImages();
+
+        // Filtering
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Active class
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filterValue = btn.getAttribute('data-filter');
+                galleryItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Lightbox functionality
+        galleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const imgSrc = item.querySelector('img').src;
+                lightboxImg.src = imgSrc;
+                lightbox.classList.add('active');
+            });
+        });
+        
+        lightboxClose.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+        });
+        lightbox.addEventListener('click', (e) => {
+            if(e.target === lightbox) lightbox.classList.remove('active');
+        });
+    </script>
+</body>
+</html>

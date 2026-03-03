@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Go For Events - Premium Event Management Services for Weddings, Corporate Events, and more.">
+    <title>Go For Events | Unforgettable Event Management</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="home">
+    <!-- Loader -->
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">GoFor<span>Events</span></a>
+            <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="services.html">Services</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="booking.html" class="btn btn-primary" style="color:white; padding: 8px 20px;">Book Now</a>
+                <a href="contact.html">Contact</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+            <h1 class="hero-title">Crafting Unforgettable Experiences</h1>
+            <p class="hero-subtitle">Premium Event Management Services tailored just for you. From weddings to corporate galas, we bring your vision to life.</p>
+            <div class="hero-btns">
+                <a href="booking.html" class="btn btn-primary">Book Your Event</a>
+                <a href="services.html" class="btn btn-outline" style="color:white; border-color:white; margin-left:15px;">Explore Services</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Services Overview -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title reveal">Our Services</h2>
+            <p class="section-subtitle reveal">What We Offer</p>
+            <div class="services-grid">
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" alt="Wedding Planning" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-rings service-icon"></i>
+                        <h3>Wedding Planning</h3>
+                        <p>Fairytale weddings crafted with love, precision, and elegance from start to finish.</p>
+                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                    </div>
+                </div>
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2000&auto=format&fit=crop" alt="Corporate" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-briefcase service-icon"></i>
+                        <h3>Corporate Events</h3>
+                        <p>Professional setup for conferences, galas, and product launches.</p>
+                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                    </div>
+                </div>
+                <div class="service-card reveal">
+                    <img src="https://images.unsplash.com/photo-1472653431158-6364773b2a56?q=80&w=2069&auto=format&fit=crop" alt="Birthday Parties" class="service-img">
+                    <div class="service-content">
+                        <i class="fas fa-birthday-cake service-icon"></i>
+                        <h3>Birthday Parties</h3>
+                        <p>Fun, creative, and memorable birthday celebrations for all ages.</p>
+                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="section" style="background-color: var(--card-bg);">
+        <div class="container about-preview">
+            <div class="about-preview-img reveal">
+                <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop" alt="Why Choose Us">
+            </div>
+            <div class="about-preview-text reveal">
+                <h2>Why Choose Go For Events?</h2>
+                <p>With years of experience and a passion for perfection, we turn your dreams into reality. Our dedicated team ensures every detail is flawless.</p>
+                <div class="about-features">
+                    <div class="feature-item"><i class="fas fa-check-circle"></i> Experienced Team</div>
+                    <div class="feature-item"><i class="fas fa-check-circle"></i> Creative Concepts</div>
+                    <div class="feature-item"><i class="fas fa-check-circle"></i> 24/7 Support</div>
+                    <div class="feature-item"><i class="fas fa-check-circle"></i> Transparent Pricing</div>
+                </div>
+                <a href="about.html" class="btn btn-primary">More About Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="section text-center">
+        <div class="container">
+            <h2 class="section-title reveal">Testimonials</h2>
+            <p class="section-subtitle reveal">What Our Clients Say</p>
+            <div class="services-grid">
+                <div class="service-card reveal" style="padding: 30px;">
+                    <i class="fas fa-quote-left" style="font-size:2rem; color:var(--primary-color); margin-bottom:15px;"></i>
+                    <p style="font-style:italic; margin-bottom:15px;">"Go For Events made our wedding a dream come true! Every detail was perfect."</p>
+                    <h4 style="color:var(--primary-color);">— Sarah &amp; John</h4>
+                </div>
+                <div class="service-card reveal" style="padding: 30px;">
+                    <i class="fas fa-quote-left" style="font-size:2rem; color:var(--primary-color); margin-bottom:15px;"></i>
+                    <p style="font-style:italic; margin-bottom:15px;">"Extremely professional. Our corporate gala was a massive success thanks to their team."</p>
+                    <h4 style="color:var(--primary-color);">— TechNova Corp</h4>
+                </div>
+                <div class="service-card reveal" style="padding: 30px;">
+                    <i class="fas fa-quote-left" style="font-size:2rem; color:var(--primary-color); margin-bottom:15px;"></i>
+                    <p style="font-style:italic; margin-bottom:15px;">"Best event planners in town. Highly recommended for birthday parties!"</p>
+                    <h4 style="color:var(--primary-color);">— The Smith Family</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Preview -->
+    <section class="section" style="background-color: var(--card-bg);">
+        <div class="container text-center">
+            <h2 class="section-title reveal">Gallery Preview</h2>
+            <p class="section-subtitle reveal">Our Best Moments</p>
+            <div class="services-grid">
+                <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 1">
+                <img src="https://images.unsplash.com/photo-1533174000255-14eb928a649a?q=80&w=2070&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 2">
+                <img src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1976&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 3">
+            </div>
+            <a href="gallery.html" class="btn btn-outline" style="margin-top:40px;">View Full Gallery</a>
+        </div>
+    </section>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/919864926253" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Scroll To Top Button -->
+    <div class="scroll-top" id="scroll-top" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>GoForEvents</h3>
+                    <p>Creating magical and memorable events with precision and passion. Your dream event starts here.</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/share/15dEsDshfZ/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/gofor_events" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://x.com/Gofor_events" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://youtube.com/@gofor_events" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.linkedin.com/in/gofor-events-b6723b345" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://pin.it/3umyIfwxE" target="_blank"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="gallery.html">Event Gallery</a></li>
+                        <li><a href="booking.html">Book an Event</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-phone-alt"></i> +91 98649 26253</p>
+                    <p><i class="fab fa-whatsapp"></i> +91 98649 26253</p>
+                    <p><i class="fas fa-envelope"></i> goforevents7@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Guwhati, Assam, India</p> <!-- Example location -->
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <span id="year"></span> Go For Events. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
