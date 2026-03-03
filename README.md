@@ -1,21 +1,23 @@
-# Go For Events
+# Go For Events Website
 
-A complete responsive Event Management Service Website built out of standard HTML, CSS, and Vanilla JavaScript with simulating local storage payloads for internal database tracking and custom CSS styling logic containing transitions and dark-mode features without the use of libraries constraints like React/Tailwind.
+A complete responsive Event Management Service Website built utilizing HTML, CSS, and pure JavaScript.
 
 ## Features
 
-- **Home Page**: Modern hero component scaling properly along devices with responsive grid-layout features highlighting testominals and galleries. 
-- **About/Services**: Fully built detail layouts to represent service logic packages (weddings/corporate/birthdays/etc).
-- **Galleries System**: Image collections utilizing internal data to render dynamically inside a fluid scaling CSS-grid frame filtering category-based outputs alongside Lightbox implementation. (Adding files persists via administration access locally on storage cache) 
-- **Booking Interface**: Validation form capturing values into stringified data pushed directly to your storage for simulation of standard web forms saving details without external servers required.
-- **Admin Side**: A fully working mock layout protected with login (admin / admin123) fetching booking payloads safely to standard HTML table formats, alongside gallery image control.
-- **Contact Setup**: Integrated fetch logic designed cleanly to route towards targeted App Scripts logic APIs natively without relying upon refresh logic structures to relay message requests via email.
+- **Home Page**: Modern layout highlighting testimonials and galleries with scroll-reveal transitions.
+- **Dynamic Theming**: Integrated Dark mode and Light mode matching OS variables dynamically.
+- **Gallery**: Dynamic image grids filtering categories with lightbox implementation powered by local storage tracking.
+- **Booking Interface**: Form validation capturing data offline successfully towards LocalStorage.
+- **Admin Setup**: Secured panel simulating dashboard viewing for active events matching and pushing media directly into existing gallery datasets.
+- **Contact Handling**: Integrated Fetch API handling direct integration payloads asynchronously natively.
 
 ## Setup Requirements
 
-No `npm` installations strictly required to operate natively. Open `./index.html` natively within browsers to preview all outputs directly. For true protocol origin emulation when submitting the Google API or pushing LocalStorage requests across distinct page headers locally, run a tiny server.
+Designed purely in standard frontend conventions avoiding server reliance requirements. For origin isolation context when running locally due to modern web form validations logic involving storage contexts, start an http server against the primary path. 
 
+**Running Local Server:**
+Navigate your terminal against this root repository and initialize:
 ```bash
-python3 -m http.server 
+python3 -m http.server 8000
 ```
-Access at `http://localhost:8000/` afterwards!
+Then navigate using your browser towards `http://localhost:8000`.
