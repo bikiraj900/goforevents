@@ -566,50 +566,60 @@
         }
 
         // Manage Bookings
+        let unsubBookings = null;
         async function loadBookings() {
             const tbody = document.querySelector('#bookingsTable tbody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 30px; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</td></tr>';
             
             try {
-                const { db, collection, getDocs } = await import('./firebase-config.js');
-                const querySnapshot = await getDocs(collection(db, "bookings"));
-                let bookings = [];
-                querySnapshot.forEach((doc) => {
-                    bookings.push({ id: doc.id, ...doc.data() });
-                });
-
-                tbody.innerHTML = '';
+                const { db, collection, onSnapshot } = await import('./firebase-config.js');
                 
-                if(bookings.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 30px; color:var(--text-muted);">No bookings available yet.</td></tr>';
-                    return;
-                }
-
-                // Sort by timestamp if available
-                bookings.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(b => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><i class="far fa-clock" style="color:var(--primary-color);"></i> ${b.submittedAt ? b.submittedAt.split(',')[0] : 'N/A'}</td>
-                        <td><strong>${b.name}</strong><br><a href="mailto:${b.email}" style="color:var(--text-muted); font-size:0.85rem;">${b.email}</a></td>
-                        <td><span style="background:rgba(212,175,55,0.1); color:var(--primary-color); padding: 5px 10px; border-radius:30px; font-size:0.8rem;">${b.type}</span><br><small style="margin-top:5px; display:inline-block;">Date: ${b.date}</small></td>
-                        <td>${b.location}</td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn-icon btn-edit" onclick='openEditBooking(${JSON.stringify(b)})' title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="btn-icon btn-delete" onclick="deleteBooking('${b.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                if (unsubBookings) unsubBookings(); // Clear previous listener if any
                 
-                document.getElementById('stat-bookings').textContent = bookings.length;
-                const pending = bookings.filter(b => b.date && new Date(b.date) >= new Date()).length;
-                document.getElementById('stat-pending').textContent = pending;
+                unsubBookings = onSnapshot(collection(db, "bookings"), (querySnapshot) => {
+                    let bookings = [];
+                    querySnapshot.forEach((doc) => {
+                        bookings.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    tbody.innerHTML = '';
+                    
+                    if(bookings.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 30px; color:var(--text-muted);">No bookings available yet.</td></tr>';
+                        document.getElementById('stat-bookings').textContent = 0;
+                        document.getElementById('stat-pending').textContent = 0;
+                        return;
+                    }
+
+                    // Sort by timestamp if available
+                    bookings.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(b => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><i class="far fa-clock" style="color:var(--primary-color);"></i> ${b.submittedAt ? b.submittedAt.split(',')[0] : 'N/A'}</td>
+                            <td><strong>${b.name}</strong><br><a href="mailto:${b.email}" style="color:var(--text-muted); font-size:0.85rem;">${b.email}</a></td>
+                            <td><span style="background:rgba(212,175,55,0.1); color:var(--primary-color); padding: 5px 10px; border-radius:30px; font-size:0.8rem;">${b.type}</span><br><small style="margin-top:5px; display:inline-block;">Date: ${b.date}</small></td>
+                            <td>${b.location}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-icon btn-edit" onclick='openEditBooking(${JSON.stringify(b).replace(/'/g, "&apos;")})' title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon btn-delete" onclick="deleteBooking('${b.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    document.getElementById('stat-bookings').textContent = bookings.length;
+                    const pending = bookings.filter(b => b.date && new Date(b.date) >= new Date()).length;
+                    document.getElementById('stat-pending').textContent = pending;
+                }, (error) => {
+                    console.error("Error in bookings listener:", error);
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding: 30px; color:red;">Failed to load bookings. Check Permissions.</td></tr>`;
+                });
                 
             } catch (error) {
-                console.error("Error loading bookings from Firebase:", error);
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding: 30px; color:red;">Failed to load bookings from database.</td></tr>`;
+                console.error("Error setting up bookings listener:", error);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding: 30px; color:red;">Connection error.</td></tr>`;
             }
         }
 
@@ -660,46 +670,55 @@
         });
 
         // Manage Gallery
+        let unsubGallery = null;
         async function loadGallery() {
             const grid = document.getElementById('adminGalleryGrid');
             grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading images...</div>';
             
             try {
-                const { db, collection, getDocs } = await import('./firebase-config.js');
-                const querySnapshot = await getDocs(collection(db, "gallery_images"));
-                let images = [];
-                querySnapshot.forEach((doc) => {
-                    images.push({ id: doc.id, ...doc.data() });
-                });
+                const { db, collection, onSnapshot } = await import('./firebase-config.js');
                 
-                grid.innerHTML = '';
+                if(unsubGallery) unsubGallery();
                 
-                if(images.length === 0) {
-                    grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:var(--text-muted); border:1px dashed var(--border-color); border-radius:8px;">No images uploaded. Add some beautiful moments!</div>';
-                    return;
-                }
+                unsubGallery = onSnapshot(collection(db, "gallery_images"), (querySnapshot) => {
+                    let images = [];
+                    querySnapshot.forEach((doc) => {
+                        images.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    grid.innerHTML = '';
+                    
+                    if(images.length === 0) {
+                        grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:var(--text-muted); border:1px dashed var(--border-color); border-radius:8px;">No images uploaded. Add some beautiful moments!</div>';
+                        document.getElementById('stat-gallery').textContent = 0;
+                        return;
+                    }
 
-                // Sort by timestamp
-                images.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(img => {
-                    const div = document.createElement('div');
-                    div.className = 'gallery-item-admin';
-                    div.innerHTML = `
-                        <img src="${img.url}" alt="${img.category}">
-                        <div class="gallery-actions">
-                            <button class="btn-icon btn-edit" onclick='openEditGallery(${JSON.stringify(img)})' style="width:28px; height:28px;"><i class="fas fa-edit"></i></button>
-                            <button class="btn-icon btn-delete" onclick="deleteGalleryImage('${img.id}', '${img.storagePath || ''}')" style="width:28px; height:28px;"><i class="fas fa-trash"></i></button>
-                        </div>
-                        <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); color:var(--primary-color); padding:8px; font-size:0.85rem; text-align:center; text-transform:capitalize; font-weight:500;">
-                            ${img.category}
-                        </div>
-                    `;
-                    grid.appendChild(div);
+                    // Sort by timestamp
+                    images.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(img => {
+                        const div = document.createElement('div');
+                        div.className = 'gallery-item-admin';
+                        div.innerHTML = `
+                            <img src="${img.url}" alt="${img.category}">
+                            <div class="gallery-actions">
+                                <button class="btn-icon btn-edit" onclick='openEditGallery(${JSON.stringify(img).replace(/'/g, "&apos;")})' style="width:28px; height:28px;"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-delete" onclick="deleteGalleryImage('${img.id}', '${img.storagePath || ''}')" style="width:28px; height:28px;"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); color:var(--primary-color); padding:8px; font-size:0.85rem; text-align:center; text-transform:capitalize; font-weight:500;">
+                                ${img.category}
+                            </div>
+                        `;
+                        grid.appendChild(div);
+                    });
+                    
+                    document.getElementById('stat-gallery').textContent = images.length;
+                }, (error) => {
+                    console.error("Error in gallery listener:", error);
+                    grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:red;">Failed to load images. Check Permissions.</div>';
                 });
-                
-                document.getElementById('stat-gallery').textContent = images.length;
             } catch (error) {
-                console.error("Error loading gallery from Firebase:", error);
-                grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:red;">Failed to load images.</div>';
+                console.error("Error setting up gallery listener:", error);
+                grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:red;">Connection error.</div>';
             }
         }
 
