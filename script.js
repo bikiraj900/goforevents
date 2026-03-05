@@ -8,16 +8,35 @@ document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
         }, 800);
     }
 
-    // 1.5 Load CMS Content
-    const cmsData = JSON.parse(localStorage.getItem('goForEvents_cms_content'));
-    if (cmsData) {
-        document.querySelectorAll('[data-cms]').forEach(el => {
-            const key = el.getAttribute('data-cms');
-            if (cmsData[key]) {
-                el.textContent = cmsData[key];
+    // 1.5 Load CMS Content from Firebase
+    async function loadFrontendCMS() {
+        try {
+            const { db, doc, getDoc } = await import('./firebase-config.js');
+            const docRef = doc(db, "cms_content", "global");
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const cmsData = docSnap.data();
+                document.querySelectorAll('[data-cms]').forEach(el => {
+                    const key = el.getAttribute('data-cms');
+                    if (cmsData[key]) {
+                        el.textContent = cmsData[key];
+                    }
+                });
             }
-        });
+        } catch (error) {
+            console.error("Error loading CMS data from Firebase:", error);
+            // Fallback to localStorage if Firebase fails to load (offline mode)
+            const backupData = JSON.parse(localStorage.getItem('goForEvents_cms_content'));
+            if (backupData) {
+                document.querySelectorAll('[data-cms]').forEach(el => {
+                    const key = el.getAttribute('data-cms');
+                    if (backupData[key]) el.textContent = backupData[key];
+                });
+            }
+        }
     }
+    loadFrontendCMS();
 
     // 2. Dark/Light Mode Theme Toggle
     const themeToggle = document.getElementById('theme-toggle');
