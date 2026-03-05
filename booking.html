@@ -184,7 +184,7 @@
 
             try {
                 // Import Firebase dynamically
-                const { db, collection, addDoc } = await import('./firebase-config.js?v=2');
+                const { db, collection, addDoc } = await import('./firebase-config-v2.js');
                 
                 // Store in Firestore
                 const docRef = await addDoc(collection(db, "bookings"), newBooking);

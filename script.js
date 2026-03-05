@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
     // 1.5 Load CMS Content from Firebase
     async function loadFrontendCMS() {
         try {
-            const { db, doc, getDoc } = await import('./firebase-config.js?v=2');
+            const { db, doc, getDoc } = await import('./firebase-config-v2.js');
             const docRef = doc(db, "cms_content", "global");
             const docSnap = await getDoc(docRef);
 

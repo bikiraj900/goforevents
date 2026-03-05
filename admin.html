@@ -426,7 +426,7 @@
         // Initialize Auth State Listener
         let globalUser = null;
         async function initAuth() {
-            const { auth, onAuthStateChanged } = await import('./firebase-config.js?v=2');
+            const { auth, onAuthStateChanged } = await import('./firebase-config-v2.js');
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     globalUser = user;
@@ -450,7 +450,7 @@
             const email = u.includes('@') ? u : `${u}@goforevents.local`; // Fallback adapter for old "username" logic
 
             try {
-                const { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import('./firebase-config.js?v=2');
+                const { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import('./firebase-config-v2.js');
                 
                 authBtn.textContent = 'Processing...';
                 authBtn.disabled = true;
@@ -484,7 +484,7 @@
         // Logout
         logoutBtn.addEventListener('click', async () => {
             try {
-                const { auth, signOut } = await import('./firebase-config.js?v=2');
+                const { auth, signOut } = await import('./firebase-config-v2.js');
                 await signOut(auth);
             } catch (error) {
                 console.error("Logout error", error);
@@ -494,7 +494,7 @@
         // Google Authentication
         document.getElementById('googleAuthBtn').addEventListener('click', async () => {
             try {
-                const { auth, GoogleAuthProvider, signInWithPopup } = await import('./firebase-config.js?v=2');
+                const { auth, GoogleAuthProvider, signInWithPopup } = await import('./firebase-config-v2.js');
                 const provider = new GoogleAuthProvider();
                 
                 // Optional: Force account selection if you want users to pick a Google account every time
@@ -557,7 +557,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 30px; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</td></tr>';
             
             try {
-                const { db, collection, onSnapshot } = await import('./firebase-config.js?v=2');
+                const { db, collection, onSnapshot } = await import('./firebase-config-v2.js');
                 
                 if (unsubBookings) unsubBookings(); // Clear previous listener if any
                 
@@ -627,7 +627,7 @@
         window.deleteBooking = async (id) => {
             if(confirm('Permanently delete this booking from the database?')) {
                 try {
-                    const { db, doc, deleteDoc } = await import('./firebase-config.js?v=2');
+                    const { db, doc, deleteDoc } = await import('./firebase-config-v2.js');
                     await deleteDoc(doc(db, "bookings", id));
                     loadBookings();
                 } catch (error) {
@@ -660,7 +660,7 @@
             };
             
             try {
-                const { db, doc, setDoc } = await import('./firebase-config.js?v=2');
+                const { db, doc, setDoc } = await import('./firebase-config-v2.js');
                 // Use { merge: true } to only update provided fields without overwriting the whole document
                 await setDoc(doc(db, "bookings", id), updatedData, { merge: true });
                 loadBookings();
@@ -678,7 +678,7 @@
             grid.innerHTML = '<div style="grid-column:1/-1; padding:40px; text-align:center; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading images...</div>';
             
             try {
-                const { db, collection, onSnapshot } = await import('./firebase-config.js?v=2');
+                const { db, collection, onSnapshot } = await import('./firebase-config-v2.js');
                 
                 if(unsubGallery) unsubGallery();
                 
@@ -727,7 +727,7 @@
         window.deleteGalleryImage = async (id, storagePath) => {
             if(confirm('Delete this image from the cloud?')) {
                 try {
-                    const { db, storage, doc, deleteDoc, ref, deleteObject } = await import('./firebase-config.js?v=2');
+                    const { db, storage, doc, deleteDoc, ref, deleteObject } = await import('./firebase-config-v2.js');
                     
                     // 1. Delete from Firestore
                     await deleteDoc(doc(db, "gallery_images", id));
@@ -817,7 +817,7 @@
             }
 
             try {
-                const { db, storage, collection, addDoc, doc, setDoc, ref, uploadString, getDownloadURL } = await import('./firebase-config.js?v=2');
+                const { db, storage, collection, addDoc, doc, setDoc, ref, uploadString, getDownloadURL } = await import('./firebase-config-v2.js');
                 let finalUrl = urlInput;
                 let storagePathStr = null;
 
@@ -866,7 +866,7 @@
         // Content Manager Logic
         async function loadCMSData() {
             try {
-                const { db, doc, getDoc } = await import('./firebase-config.js?v=2');
+                const { db, doc, getDoc } = await import('./firebase-config-v2.js');
                 const docSnap = await getDoc(doc(db, "cms_content", "global"));
                 
                 if (docSnap.exists()) {
@@ -910,7 +910,7 @@
             };
 
             try {
-                const { db, doc, setDoc } = await import('./firebase-config.js?v=2');
+                const { db, doc, setDoc } = await import('./firebase-config-v2.js');
                 await setDoc(doc(db, "cms_content", "global"), data);
                 
                 const msg = document.getElementById('cms-success-msg');

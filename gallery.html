@@ -154,7 +154,7 @@
         // Load images from Firebase
         async function loadAdminImages() {
             try {
-                const { db, collection, getDocs } = await import('./firebase-config.js?v=2');
+                const { db, collection, getDocs } = await import('./firebase-config-v2.js');
                 const querySnapshot = await getDocs(collection(db, "gallery_images"));
                 let images = [];
                 querySnapshot.forEach((doc) => {
