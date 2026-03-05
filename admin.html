@@ -138,6 +138,9 @@
                     <div class="sidebar-item" data-target="content-tab">
                         <i class="fas fa-file-alt"></i> Site Content (CMS)
                     </div>
+                    <div class="sidebar-item" data-target="profile-tab">
+                        <i class="fas fa-user-cog"></i> Profile Settings
+                    </div>
                 </div>
 
                 <!-- Content Area -->
@@ -228,9 +231,54 @@
                                 <label class="form-label">Contact Email</label>
                                 <input type="text" id="cms-email" class="form-control" value="goforevents7@gmail.com">
                             </div>
-                            <button type="submit" class="btn btn-primary">Save Changes to Live Site</button>
+
+                            <hr style="margin:20px 0; border:1px solid #ddd;">
+                            <h4 style="margin-bottom:15px;">Global Descriptions</h4>
+
+                            <div class="form-group">
+                                <label class="form-label">About Us (Short)</label>
+                                <textarea id="cms-about" class="form-control" rows="3">With years of experience and a passion for perfection, we turn your dreams into reality. Our dedicated team ensures every detail is flawless.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Service 1 (Wedding) Content</label>
+                                <textarea id="cms-service1" class="form-control" rows="2">Fairytale weddings crafted with love, precision, and elegance from start to finish.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Service 2 (Corporate) Content</label>
+                                <textarea id="cms-service2" class="form-control" rows="2">Professional setup for conferences, galas, and product launches.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Service 3 (Birthday) Content</label>
+                                <textarea id="cms-service3" class="form-control" rows="2">Fun, creative, and memorable birthday celebrations for all ages.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Footer Tagline</label>
+                                <textarea id="cms-footer" class="form-control" rows="2">Creating magical and memorable events with precision and passion. Your dream event starts here.</textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" style="margin-bottom:40px;">Save Changes to Live Site</button>
                             <span id="cms-success-msg" style="color:green; display:none; margin-left:15px; font-weight:500;"><i class="fas fa-check"></i> Saved successfully!</span>
                         </form>
+                    </div>
+
+                    <!-- Profile Tab -->
+                    <div class="tab-content" id="profile-tab">
+                        <h3 style="margin-bottom: 20px; font-family:var(--font-heading); font-size:1.8rem;">Profile Settings</h3>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">Manage admin credentials used to log into this dashboard.</p>
+                        <div class="table-responsive">
+                            <table id="profileTable">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Password</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -262,6 +310,28 @@
                 <div class="form-group">
                     <label class="form-label">Location</label>
                     <input type="text" id="edit-b-location" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile Data</h3>
+                <span class="modal-close" onclick="closeModal('editProfileModal')">&times;</span>
+            </div>
+            <form id="editProfileForm">
+                <input type="hidden" id="edit-profile-old-username">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="edit-profile-username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="text" id="edit-profile-password" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%;">Save Changes</button>
             </form>
@@ -411,6 +481,7 @@
             loadGallery();
             loadCMSData();
             renderChart();
+            loadProfiles();
         }
 
         // Tabs Logic
@@ -623,6 +694,79 @@
             closeModal('galleryModal');
         });
 
+        // Profile Manager Logic
+        function loadProfiles() {
+            const admins = JSON.parse(localStorage.getItem(ADMIN_DB) || '[]');
+            const tbody = document.querySelector('#profileTable tbody');
+            tbody.innerHTML = '';
+            
+            admins.forEach(admin => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${admin.username}</td>
+                    <td>••••••••</td>
+                    <td>
+                        <button class="btn-icon btn-edit" onclick="openEditProfile('${admin.username}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon btn-delete" onclick="deleteProfile('${admin.username}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.openEditProfile = (username) => {
+            const admins = JSON.parse(localStorage.getItem(ADMIN_DB) || '[]');
+            const admin = admins.find(a => a.username === username);
+            if (admin) {
+                document.getElementById('edit-profile-old-username').value = admin.username;
+                document.getElementById('edit-profile-username').value = admin.username;
+                document.getElementById('edit-profile-password').value = admin.password;
+                document.getElementById('editProfileModal').classList.add('active');
+            }
+        };
+
+        document.getElementById('editProfileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const oldUsername = document.getElementById('edit-profile-old-username').value;
+            const newUsername = document.getElementById('edit-profile-username').value;
+            const newPassword = document.getElementById('edit-profile-password').value;
+            
+            let admins = JSON.parse(localStorage.getItem(ADMIN_DB) || '[]');
+            const idx = admins.findIndex(a => a.username === oldUsername);
+            if (idx > -1) {
+                // If they changed the active session username, update session
+                if (sessionStorage.getItem('activeAdmin') === oldUsername) {
+                    sessionStorage.setItem('activeAdmin', newUsername);
+                    document.getElementById('adminName').textContent = newUsername;
+                    document.getElementById('adminAvatar').src = `https://ui-avatars.com/api/?name=${newUsername}&background=d4af37&color=fff`;
+                }
+                admins[idx].username = newUsername;
+                admins[idx].password = newPassword;
+                localStorage.setItem(ADMIN_DB, JSON.stringify(admins));
+                loadProfiles();
+                closeModal('editProfileModal');
+            }
+        });
+
+        window.deleteProfile = (username) => {
+            let admins = JSON.parse(localStorage.getItem(ADMIN_DB) || '[]');
+            if (admins.length <= 1) {
+                alert("Cannot delete the last admin account!");
+                return;
+            }
+            if (confirm(`Are you sure you want to delete the admin: ${username}?`)) {
+                admins = admins.filter(a => a.username !== username);
+                localStorage.setItem(ADMIN_DB, JSON.stringify(admins));
+                
+                // If deleted active user, logout
+                if (sessionStorage.getItem('activeAdmin') === username) {
+                    logoutBtn.click();
+                } else {
+                    loadProfiles();
+                }
+            }
+        };
+
         // Content Manager Logic
         function loadCMSData() {
             const cmsData = JSON.parse(localStorage.getItem(CMS_DB) || '{}');
@@ -631,6 +775,12 @@
             if(cmsData.hero_title3) document.getElementById('cms-hero3').value = cmsData.hero_title3;
             if(cmsData.contact_phone) document.getElementById('cms-phone').value = cmsData.contact_phone;
             if(cmsData.contact_email) document.getElementById('cms-email').value = cmsData.contact_email;
+            
+            if(cmsData.home_about_desc) document.getElementById('cms-about').value = cmsData.home_about_desc;
+            if(cmsData.home_service1_desc) document.getElementById('cms-service1').value = cmsData.home_service1_desc;
+            if(cmsData.home_service2_desc) document.getElementById('cms-service2').value = cmsData.home_service2_desc;
+            if(cmsData.home_service3_desc) document.getElementById('cms-service3').value = cmsData.home_service3_desc;
+            if(cmsData.footer_desc) document.getElementById('cms-footer').value = cmsData.footer_desc;
         }
 
         document.getElementById('cmsForm').addEventListener('submit', (e) => {
@@ -641,6 +791,12 @@
                 hero_title3: document.getElementById('cms-hero3').value,
                 contact_phone: document.getElementById('cms-phone').value,
                 contact_email: document.getElementById('cms-email').value,
+                
+                home_about_desc: document.getElementById('cms-about').value,
+                home_service1_desc: document.getElementById('cms-service1').value,
+                home_service2_desc: document.getElementById('cms-service2').value,
+                home_service3_desc: document.getElementById('cms-service3').value,
+                footer_desc: document.getElementById('cms-footer').value,
             };
             localStorage.setItem(CMS_DB, JSON.stringify(data));
             
