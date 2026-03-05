@@ -193,7 +193,7 @@
                                         <th>Date Submitted</th>
                                         <th>Client Info</th>
                                         <th>Event Details</th>
-                                        <th>Location</th>
+                                        <th>Location & Notes</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -578,8 +578,12 @@
                 
                 unsubBookings = onSnapshot(collection(db, "bookings"), (querySnapshot) => {
                     let bookings = [];
+                    window.adminBookingsMap = {}; // Reset global dictionary
+                    
                     querySnapshot.forEach((doc) => {
-                        bookings.push({ id: doc.id, ...doc.data() });
+                        const data = { id: doc.id, ...doc.data() };
+                        bookings.push(data);
+                        window.adminBookingsMap[doc.id] = data; // Store globally by ID
                     });
 
                     tbody.innerHTML = '';
@@ -596,12 +600,23 @@
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td><i class="far fa-clock" style="color:var(--primary-color);"></i> ${b.submittedAt ? b.submittedAt.split(',')[0] : 'N/A'}</td>
-                            <td><strong>${b.name}</strong><br><a href="mailto:${b.email}" style="color:var(--text-muted); font-size:0.85rem;">${b.email}</a></td>
-                            <td><span style="background:rgba(212,175,55,0.1); color:var(--primary-color); padding: 5px 10px; border-radius:30px; font-size:0.8rem;">${b.type}</span><br><small style="margin-top:5px; display:inline-block;">Date: ${b.date}</small></td>
-                            <td>${b.location}</td>
+                            <td>
+                                <strong>${b.name || 'N/A'}</strong><br>
+                                <a href="mailto:${b.email}" style="color:var(--text-muted); font-size:0.85rem;"><i class="fas fa-envelope" style="margin-right:4px;"></i>${b.email || 'N/A'}</a><br>
+                                <span style="font-size:0.85rem; color:var(--text-muted);"><i class="fas fa-phone" style="margin-right:4px;"></i>${b.phone || 'N/A'}</span>
+                            </td>
+                            <td>
+                                <span style="background:rgba(212,175,55,0.1); color:var(--primary-color); padding: 5px 10px; border-radius:30px; font-size:0.8rem;">${b.type || 'N/A'}</span><br>
+                                <small style="margin-top:5px; display:inline-block;">Date: ${b.date || 'N/A'}</small><br>
+                                <small style="display:inline-block;">Guests: ${b.guests || 'N/A'}</small>
+                            </td>
+                            <td>
+                                <strong style="font-size:0.9rem;">${b.location || 'N/A'}</strong>
+                                ${b.message ? `<p style="font-size:0.85rem; color:var(--text-muted); margin-top:5px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${b.message.replace(/"/g, '&quot;')}">${b.message}</p>` : ''}
+                            </td>
                             <td>
                                 <div class="action-btns">
-                                    <button class="btn-icon btn-edit" onclick='openEditBooking(${JSON.stringify(b).replace(/'/g, "&apos;")})' title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon btn-edit" onclick="openEditBooking('${b.id}')" title="Edit"><i class="fas fa-edit"></i></button>
                                     <button class="btn-icon btn-delete" onclick="deleteBooking('${b.id}')" title="Delete"><i class="fas fa-trash"></i></button>
                                 </div>
                             </td>
@@ -637,12 +652,14 @@
             }
         };
 
-        window.openEditBooking = (b) => {
+        window.openEditBooking = (id) => {
+            const b = window.adminBookingsMap[id];
+            if(!b) return;
             document.getElementById('edit-b-id').value = b.id;
-            document.getElementById('edit-b-name').value = b.name;
-            document.getElementById('edit-b-type').value = b.type;
-            document.getElementById('edit-b-date').value = b.date;
-            document.getElementById('edit-b-location').value = b.location;
+            document.getElementById('edit-b-name').value = b.name || '';
+            document.getElementById('edit-b-type').value = b.type || '';
+            document.getElementById('edit-b-date').value = b.date || '';
+            document.getElementById('edit-b-location').value = b.location || '';
             document.getElementById('editBookingModal').classList.add('active');
         };
 
