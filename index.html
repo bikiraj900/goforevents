@@ -6,7 +6,7 @@
     <meta name="description" content="Go For Events - Premium Event Management Services for Weddings, Corporate Events, and more.">
     <title>Go For Events | Unforgettable Event Management</title>
     <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="home">
@@ -40,7 +40,8 @@
         <div class="hero-overlay"></div>
         <div class="container hero-content">
             <h1 class="hero-title">Crafting Unforgettable Experiences</h1>
-            <p class="hero-subtitle">Premium Event Management Services tailored just for you. From weddings to corporate galas, we bring your vision to life.</p>
+            <p class="hero-subtitle" style="font-size: 1.5rem; font-weight: 500; font-style: italic; color: var(--primary-color);">Ek Event, Ek Yaad, Humesha Ke Liye</p>
+            <p class="hero-subtitle" style="margin-top:-15px;">Premium Event Management Services tailored just for you. From weddings to corporate galas, we bring your vision to life.</p>
             <div class="hero-btns">
                 <a href="booking.html" class="btn btn-primary">Book Your Event</a>
                 <a href="services.html" class="btn btn-outline" style="color:white; border-color:white; margin-left:15px;">Explore Services</a>
@@ -60,7 +61,10 @@
                         <i class="fas fa-rings service-icon"></i>
                         <h3>Wedding Planning</h3>
                         <p>Fairytale weddings crafted with love, precision, and elegance from start to finish.</p>
-                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <a href="services.html" class="btn btn-outline" style="flex:1; text-align:center;">Learn More</a>
+                            <a href="booking.html" class="btn btn-primary" style="flex:1; text-align:center;">Book Now</a>
+                        </div>
                     </div>
                 </div>
                 <div class="service-card reveal">
@@ -69,7 +73,10 @@
                         <i class="fas fa-briefcase service-icon"></i>
                         <h3>Corporate Events</h3>
                         <p>Professional setup for conferences, galas, and product launches.</p>
-                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <a href="services.html" class="btn btn-outline" style="flex:1; text-align:center;">Learn More</a>
+                            <a href="booking.html" class="btn btn-primary" style="flex:1; text-align:center;">Book Now</a>
+                        </div>
                     </div>
                 </div>
                 <div class="service-card reveal">
@@ -78,7 +85,10 @@
                         <i class="fas fa-birthday-cake service-icon"></i>
                         <h3>Birthday Parties</h3>
                         <p>Fun, creative, and memorable birthday celebrations for all ages.</p>
-                        <a href="services.html" class="btn btn-outline" style="margin-top:15px; width:100%; text-align:center;">Learn More</a>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <a href="services.html" class="btn btn-outline" style="flex:1; text-align:center;">Learn More</a>
+                            <a href="booking.html" class="btn btn-primary" style="flex:1; text-align:center;">Book Now</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,14 +145,30 @@
         <div class="container text-center">
             <h2 class="section-title reveal">Gallery Preview</h2>
             <p class="section-subtitle reveal">Our Best Moments</p>
-            <div class="services-grid">
-                <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 1">
-                <img src="https://images.unsplash.com/photo-1533174000255-14eb928a649a?q=80&w=2070&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 2">
-                <img src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1976&auto=format&fit=crop" class="service-img reveal" style="border-radius:var(--radius); box-shadow:var(--shadow-md);" alt="Gallery 3">
+            <div class="services-grid" id="home-gallery">
+                <div class="gallery-item reveal" data-title="Elegant Wedding Setup" data-desc="Fairytale lighting and premium floral decor.">
+                    <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 1">
+                </div>
+                <div class="gallery-item reveal" data-title="Corporate Tech Conference" data-desc="Modern stage design with immersive visuals.">
+                    <img src="https://images.unsplash.com/photo-1533174000255-14eb928a649a?q=80&w=2070&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 2">
+                </div>
+                <div class="gallery-item reveal" data-title="Outdoor Festival" data-desc="Vibrant music festival with massive crowd engagement.">
+                    <img src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1976&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 3">
+                </div>
             </div>
             <a href="gallery.html" class="btn btn-outline" style="margin-top:40px;">View Full Gallery</a>
         </div>
     </section>
+
+    <!-- Lightbox for Homepage Gallery -->
+    <div class="lightbox" id="home-lightbox">
+        <span class="lightbox-close" id="home-lightbox-close">&times;</span>
+        <img src="" alt="Fullscreen Image" id="home-lightbox-img">
+        <div class="lightbox-details">
+            <h3 id="home-lightbox-title"></h3>
+            <p id="home-lightbox-desc"></p>
+        </div>
+    </div>
 
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/919864926253" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
@@ -164,7 +190,7 @@
                     <div class="social-icons">
                         <a href="https://www.facebook.com/share/15dEsDshfZ/" target="_blank"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://www.instagram.com/gofor_events" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://x.com/Gofor_events" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://x.com/Gofor_events" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
                         <a href="https://youtube.com/@gofor_events" target="_blank"><i class="fab fa-youtube"></i></a>
                         <a href="https://www.linkedin.com/in/gofor-events-b6723b345" target="_blank"><i class="fab fa-linkedin-in"></i></a>
                         <a href="https://pin.it/3umyIfwxE" target="_blank"><i class="fab fa-pinterest-p"></i></a>
@@ -197,6 +223,37 @@
     <script src="script.js"></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+        
+        // Homepage Lightbox Logic
+        const homeGalleryItems = document.querySelectorAll('#home-gallery .gallery-item');
+        const homeLightbox = document.getElementById('home-lightbox');
+        const homeLightboxImg = document.getElementById('home-lightbox-img');
+        const homeLightboxTitle = document.getElementById('home-lightbox-title');
+        const homeLightboxDesc = document.getElementById('home-lightbox-desc');
+        const homeLightboxClose = document.getElementById('home-lightbox-close');
+
+        if(homeGalleryItems && homeLightbox) {
+            homeGalleryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const imgSrc = item.querySelector('img').src;
+                    const title = item.getAttribute('data-title');
+                    const desc = item.getAttribute('data-desc');
+                    
+                    homeLightboxImg.src = imgSrc;
+                    homeLightboxTitle.textContent = title;
+                    homeLightboxDesc.textContent = desc;
+                    homeLightbox.classList.add('active');
+                });
+            });
+            
+            homeLightboxClose.addEventListener('click', () => {
+                homeLightbox.classList.remove('active');
+            });
+            
+            homeLightbox.addEventListener('click', (e) => {
+                if(e.target === homeLightbox) homeLightbox.classList.remove('active');
+            });
+        }
     </script>
 </body>
 </html>
