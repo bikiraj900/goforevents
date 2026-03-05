@@ -33,15 +33,15 @@
 
     <nav class="navbar sticky" id="navbar">
         <div class="container nav-container">
-            <a href="index.html" class="logo">GoFor<span>Events</span></a>
+            <a href="/" class="logo">GoFor<span>Events</span></a>
             <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
             <div class="nav-links" id="nav-links">
-                <a href="index.html">Home</a>
-                <a href="about.html">About</a>
-                <a href="services.html">Services</a>
-                <a href="gallery.html" class="active">Gallery</a>
-                <a href="booking.html" class="btn btn-primary" style="color:white; padding: 8px 20px;">Book Now</a>
-                <a href="contact.html">Contact</a>
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/services">Services</a>
+                <a href="/gallery" class="active">Gallery</a>
+                <a href="/booking" class="btn btn-primary" style="color:white; padding: 8px 20px;">Book Now</a>
+                <a href="/contact">Contact</a>
                 <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
             </div>
         </div>
@@ -94,6 +94,10 @@
     <div class="lightbox" id="lightbox">
         <span class="lightbox-close" id="lightbox-close">&times;</span>
         <img src="" alt="Fullscreen Image" id="lightbox-img">
+        <div class="lightbox-details" style="text-align:center; color:white; margin-top:15px;">
+            <h3 id="lightbox-title" style="color:var(--primary-color); text-transform:capitalize; font-size:1.8rem; margin-bottom:5px;"></h3>
+            <p id="lightbox-desc"></p>
+        </div>
     </div>
 
     <!-- Footer ... -->
@@ -128,6 +132,8 @@
                         <img src="${imgData.url}" alt="${imgData.category}">
                         <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
                     `;
+                    div.setAttribute('data-title', imgData.category);
+                    div.setAttribute('data-desc', 'A beautiful ' + imgData.category + ' event organized by Go For Events.');
                     galleryContainer.appendChild(div);
                 });
             }
@@ -157,7 +163,13 @@
         galleryItems.forEach(item => {
             item.addEventListener('click', () => {
                 const imgSrc = item.querySelector('img').src;
+                const title = item.getAttribute('data-title') || item.getAttribute('data-category') || 'Event Memory';
+                const desc = item.getAttribute('data-desc') || 'A beautiful memory organized by Go For Events.';
+                
                 lightboxImg.src = imgSrc;
+                document.getElementById('lightbox-title').textContent = title;
+                document.getElementById('lightbox-desc').textContent = desc;
+                
                 lightbox.classList.add('active');
             });
         });

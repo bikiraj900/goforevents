@@ -7,6 +7,7 @@
     <title>Admin Dashboard | Go For Events</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f4f6f9; color: #333; font-family: 'Inter', sans-serif; }
         [data-theme="dark"] body { background-color: var(--bg-color); color: var(--text-color); }
@@ -111,7 +112,7 @@
                     <button type="submit" class="btn btn-primary" id="auth-btn" style="width:100%;">Login to Dashboard</button>
                 </form>
                 <div class="toggle-auth" id="toggle-auth-mode">Don't have an account? Register here.</div>
-                <a href="index.html" style="display:inline-block; margin-top:20px; font-size:0.9rem; color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Primary Site</a>
+                <a href="/" style="display:inline-block; margin-top:20px; font-size:0.9rem; color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Primary Site</a>
             </div>
         </div>
 
@@ -133,6 +134,9 @@
                     </div>
                     <div class="sidebar-item" data-target="gallery-tab">
                         <i class="fas fa-images"></i> Manage Gallery
+                    </div>
+                    <div class="sidebar-item" data-target="content-tab">
+                        <i class="fas fa-file-alt"></i> Site Content (CMS)
                     </div>
                 </div>
 
@@ -156,6 +160,12 @@
                                 <h4>Pending Events</h4>
                                 <div class="stat-value" id="stat-pending">0</div>
                             </div>
+                        </div>
+                        
+                        <!-- Analytics Graph -->
+                        <div style="background:var(--card-bg); padding:20px; border-radius:var(--radius); border:1px solid var(--border-color); box-shadow:var(--shadow-sm); margin-top:30px;">
+                            <h4 style="margin-bottom:15px; font-family:var(--font-heading);">Weekly Site Analytics</h4>
+                            <canvas id="analyticsChart" height="100"></canvas>
                         </div>
                     </div>
 
@@ -190,6 +200,37 @@
                         <div class="gallery-grid-admin" id="adminGalleryGrid">
                             <!-- Populated JS -->
                         </div>
+                    </div>
+
+                    <!-- Content Manager Tab -->
+                    <div class="tab-content" id="content-tab">
+                        <h3 style="margin-bottom: 20px; font-family:var(--font-heading); font-size:1.8rem;">Site Content Manager</h3>
+                        <p style="color:var(--text-muted); margin-bottom:20px;">Update global site text dynamically. Changes apply immediately to the live site.</p>
+                        
+                        <form id="cmsForm">
+                            <div class="form-group">
+                                <label class="form-label">Home Hero Title (Line 1)</label>
+                                <input type="text" id="cms-hero1" class="form-control" value="Go For Events">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Home Hero Subtitle (Line 2)</label>
+                                <input type="text" id="cms-hero2" class="form-control" value="Ek Event, Ek Yaad, Humesha Ke Liye">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Home Hero Subtitle (Line 3)</label>
+                                <input type="text" id="cms-hero3" class="form-control" value="Every Celebration, A Cherished Memory!">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contact Phone</label>
+                                <input type="text" id="cms-phone" class="form-control" value="+91 98649 26253">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contact Email</label>
+                                <input type="text" id="cms-email" class="form-control" value="goforevents7@gmail.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Changes to Live Site</button>
+                            <span id="cms-success-msg" style="color:green; display:none; margin-left:15px; font-weight:500;"><i class="fas fa-check"></i> Saved successfully!</span>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -289,6 +330,7 @@
         const ADMIN_DB = 'goForEvents_admins';
         const BOOKINGS_DB = 'goForEvents_bookings';
         const GALLERY_DB = 'goForEvents_gallery';
+        const CMS_DB = 'goForEvents_cms_content';
 
         // Initialize Default Admin if DB empty
         if (!localStorage.getItem(ADMIN_DB)) {
@@ -367,6 +409,8 @@
             updateStats();
             loadBookings();
             loadGallery();
+            loadCMSData();
+            renderChart();
         }
 
         // Tabs Logic
@@ -578,6 +622,75 @@
             updateStats();
             closeModal('galleryModal');
         });
+
+        // Content Manager Logic
+        function loadCMSData() {
+            const cmsData = JSON.parse(localStorage.getItem(CMS_DB) || '{}');
+            if(cmsData.hero_title1) document.getElementById('cms-hero1').value = cmsData.hero_title1;
+            if(cmsData.hero_title2) document.getElementById('cms-hero2').value = cmsData.hero_title2;
+            if(cmsData.hero_title3) document.getElementById('cms-hero3').value = cmsData.hero_title3;
+            if(cmsData.contact_phone) document.getElementById('cms-phone').value = cmsData.contact_phone;
+            if(cmsData.contact_email) document.getElementById('cms-email').value = cmsData.contact_email;
+        }
+
+        document.getElementById('cmsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                hero_title1: document.getElementById('cms-hero1').value,
+                hero_title2: document.getElementById('cms-hero2').value,
+                hero_title3: document.getElementById('cms-hero3').value,
+                contact_phone: document.getElementById('cms-phone').value,
+                contact_email: document.getElementById('cms-email').value,
+            };
+            localStorage.setItem(CMS_DB, JSON.stringify(data));
+            
+            const msg = document.getElementById('cms-success-msg');
+            msg.style.display = 'inline-block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        });
+
+        // Chart.js Graph Initialization
+        let analyticsChart;
+        function renderChart() {
+            const ctx = document.getElementById('analyticsChart');
+            if(!ctx) return;
+            
+            if(analyticsChart) analyticsChart.destroy(); // Prevent memory leak on re-renders
+            
+            analyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Website Unique Visitors',
+                        data: [120, 190, 150, 220, 305, 410, 380], // Mock Data
+                        borderColor: '#d4af37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Service Link Clicks',
+                        data: [65, 85, 70, 110, 190, 240, 210], // Mock Data
+                        borderColor: '#1a1a2e',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
 
         // Global Modal Close
         window.closeModal = (modalId) => {

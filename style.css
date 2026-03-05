@@ -628,6 +628,19 @@ textarea.form-control {
   margin-bottom: 15px;
 }
 
+.service-content-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.service-content-actions .btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 15px;
+  font-size: 0.85rem;
+}
+
 /* About Home */
 .about-preview {
   display: flex;
@@ -671,6 +684,20 @@ textarea.form-control {
 
   .about-preview {
     flex-direction: column;
+  }
+
+  .hero-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .hero-btns .btn {
+    width: 100%;
+    margin: 0 !important;
   }
 }
 

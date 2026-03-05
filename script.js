@@ -1,12 +1,22 @@
 // script.js
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Loader
+document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
     const loader = document.getElementById('loader');
     if (loader) {
         setTimeout(() => {
             loader.classList.add('fade-out');
         }, 800);
+    }
+
+    // 1.5 Load CMS Content
+    const cmsData = JSON.parse(localStorage.getItem('goForEvents_cms_content'));
+    if (cmsData) {
+        document.querySelectorAll('[data-cms]').forEach(el => {
+            const key = el.getAttribute('data-cms');
+            if (cmsData[key]) {
+                el.textContent = cmsData[key];
+            }
+        });
     }
 
     // 2. Dark/Light Mode Theme Toggle
@@ -74,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 navbar.classList.remove('sticky');
             }
         }
-        
+
         // Scroll To Top Button
         const scrollTopBtn = document.getElementById('scroll-top');
         if (scrollTopBtn) {
