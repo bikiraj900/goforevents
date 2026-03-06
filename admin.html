@@ -929,9 +929,14 @@
 
         // Chart.js Graph Initialization
         let analyticsChart;
+        let unsubAnalytics = [];
+        
         async function renderChart() {
             const ctx = document.getElementById('analyticsChart');
             if(!ctx) return;
+            
+            unsubAnalytics.forEach(unsub => unsub());
+            unsubAnalytics = [];
             
             const dates = [];
             const labels = [];
@@ -944,20 +949,6 @@
             
             let visitorData = [0,0,0,0,0,0,0];
             
-            try {
-                const { db, doc, getDoc } = await import('./firebase-config-v2.js');
-                const promises = dates.map(dateStr => getDoc(doc(db, "analytics", dateStr)));
-                const snaps = await Promise.all(promises);
-                
-                snaps.forEach((snap, index) => {
-                    if (snap.exists()) {
-                        visitorData[index] = snap.data().visits || 0;
-                    }
-                });
-            } catch (e) {
-                console.error("Analytics fetch error:", e);
-            }
-
             if(analyticsChart) analyticsChart.destroy();
             
             analyticsChart = new Chart(ctx, {
@@ -989,6 +980,25 @@
                     }
                 }
             });
+
+            try {
+                const { db, doc, onSnapshot } = await import('./firebase-config-v2.js');
+                
+                dates.forEach((dateStr, index) => {
+                    const unsub = onSnapshot(doc(db, "analytics", dateStr), (docSnap) => {
+                        if (docSnap.exists()) {
+                            visitorData[index] = docSnap.data().visits || 0;
+                            if (analyticsChart) {
+                                analyticsChart.update();
+                            }
+                        }
+                    });
+                    unsubAnalytics.push(unsub);
+                });
+            } catch (e) {
+                console.error("Analytics live listener error:", e);
+            }
+
         }
 
         // Global Modal Close
