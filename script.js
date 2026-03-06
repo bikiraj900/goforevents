@@ -38,6 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
     }
     loadFrontendCMS();
 
+    // 1.8 Real-time Analytics Tracker
+    async function trackVisit() {
+        if (sessionStorage.getItem('visited_gfe')) return; // Count uniquely per browser session
+        try {
+            const { db, doc, setDoc, increment } = await import('./firebase-config-v2.js');
+            // Store by YYYY-MM-DD local date
+            const today = new Date().toLocaleDateString('en-CA');
+            await setDoc(doc(db, "analytics", today), { visits: increment(1) }, { merge: true });
+            sessionStorage.setItem('visited_gfe', 'true');
+        } catch (error) {
+            console.error("Analytics Tracker Error:", error);
+        }
+    }
+    trackVisit();
+
     // 2. Dark/Light Mode Theme Toggle
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
