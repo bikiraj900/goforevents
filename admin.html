@@ -107,9 +107,10 @@
                         <input type="text" id="username" class="form-control" placeholder="Email Address" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" id="password" class="form-control" placeholder="Password" required>
+                        <input type="password" id="password" class="form-control" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn btn-primary" id="auth-btn" style="width:100%;">Login to Dashboard</button>
+                    <div id="auth-msg" class="form-message"></div>
                     
                     <div style="display:flex; align-items:center; margin: 20px 0;">
                         <hr style="flex:1; border:none; border-top:1px solid var(--border-color);">
@@ -402,29 +403,9 @@
         const authMsg = document.getElementById('auth-msg');
         const adminNav = document.getElementById('adminNav');
         const logoutBtn = document.getElementById('logoutBtn');
-        const toggleAuthMode = document.getElementById('toggle-auth-mode');
         const authTitle = document.getElementById('auth-title');
         const authBtn = document.getElementById('auth-btn');
         
-        // Data Keys
-        let isLoginMode = true;
-
-        // Toggle Auth Mode
-        toggleAuthMode.addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            authMsg.className = 'form-message';
-            authForm.reset();
-            if(isLoginMode) {
-                authTitle.textContent = 'Admin Login';
-                authBtn.textContent = 'Login to Dashboard';
-                toggleAuthMode.textContent = "Don't have an account? Register here.";
-            } else {
-                authTitle.textContent = 'Register Admin';
-                authBtn.textContent = 'Create Admin Account';
-                toggleAuthMode.textContent = "Already have an account? Login here.";
-            }
-        });
-
         // Initialize Auth State Listener
         let globalUser = null;
         async function initAuth() {
@@ -447,33 +428,25 @@
         // Auth Submit
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('username').value.trim(); // Now expecting email
+            const u = document.getElementById('username').value.trim(); 
             const p = document.getElementById('password').value.trim();
-            const email = u.includes('@') ? u : `${u}@goforevents.local`; // Fallback adapter for old "username" logic
+            const email = u.includes('@') ? u : `${u}@goforevents.local`; 
 
             try {
-                const { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import('./firebase-config-v2.js');
+                const { auth, signInWithEmailAndPassword } = await import('./firebase-config-v2.js');
                 
                 authBtn.textContent = 'Processing...';
                 authBtn.disabled = true;
 
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, p);
-                    // onAuthStateChanged will handle the UI
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, p);
-                    showAuthMsg('Registration successful! Logging in...', 'success');
-                }
+                await signInWithEmailAndPassword(auth, email, p);
+                // onAuthStateChanged will handle the UI
             } catch (error) {
                 console.error("Auth error:", error);
-                // Make Firebase error messages user-friendly
                 let msg = error.message;
                 if(error.code === 'auth/invalid-credential') msg = 'Invalid Email/Username or Password.';
-                if(error.code === 'auth/email-already-in-use') msg = 'Account already exists.';
-                if(error.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
                 showAuthMsg(msg, 'error');
             } finally {
-                authBtn.textContent = isLoginMode ? 'Login to Dashboard' : 'Create Admin Account';
+                authBtn.textContent = 'Login to Dashboard';
                 authBtn.disabled = false;
             }
         });
