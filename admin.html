@@ -445,12 +445,13 @@
 
     <script src="script.js"></script>
     <script>
-        // Global Firebase Reference (Load once)
+        // Global Firebase Reference (Load once, re-fetch on failure)
         let fb = null;
-        async function loadFB() {
-            fb = await import('./firebase-config-v2.js');
+        async function getFB() {
+            if (!fb) fb = await import('./firebase-config-v2.js');
+            return fb;
         }
-        const fbPromise = loadFB();
+        const fbPromise = getFB();
 
         // DOM Elements
         const authSection = document.getElementById('auth-section');
@@ -465,8 +466,7 @@
         // Initialize Auth State Listener
         let globalUser = null;
         async function initAuth() {
-            await fbPromise;
-            const { auth, onAuthStateChanged } = fb;
+            const { auth, onAuthStateChanged } = await getFB();
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     globalUser = user;
@@ -490,8 +490,7 @@
             const email = u.includes('@') ? u : `${u}@goforevents.local`; 
 
             try {
-                await fbPromise;
-                const { auth, signInWithEmailAndPassword } = fb;
+                const { auth, signInWithEmailAndPassword } = await getFB();
                 
                 authBtn.textContent = 'Processing...';
                 authBtn.disabled = true;
@@ -590,8 +589,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 30px; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading bookings...</td></tr>';
             
             try {
-                await fbPromise;
-                const { db, collection, onSnapshot } = fb;
+                const { db, collection, onSnapshot } = await getFB();
                 
                 if (unsubBookings) unsubBookings(); // Clear previous listener if any
                 
@@ -778,8 +776,7 @@
         window.deleteGalleryImage = async (id, storagePath) => {
             if(confirm('Delete this image from the cloud?')) {
                 try {
-                    await fbPromise;
-                    const { db, storage, doc, deleteDoc, ref, deleteObject } = fb;
+                    const { db, storage, doc, deleteDoc, ref, deleteObject } = await getFB();
                     
                     // 1. Delete from Firestore
                     await deleteDoc(doc(db, "gallery_images", id));
@@ -888,8 +885,7 @@
                         // START BACKGROUND UPLOAD IMMEDIATELY
                         console.log(`Starting background upload for ${uploadType}...`);
                         try {
-                            await fbPromise;
-                            const { storage, ref, uploadBytes, getDownloadURL } = fb;
+                            const { storage, ref, uploadBytes, getDownloadURL } = await getFB();
                             const folder = uploadType === 'gallery' ? 'gallery' : 'cms';
                             const filename = `${folder}/${Date.now()}_bg_upload.webp`;
                             const storageRef = ref(storage, filename);
@@ -940,8 +936,7 @@
             }
 
             try {
-                await fbPromise;
-                const { db, storage, collection, addDoc, doc, setDoc, ref, uploadString, getDownloadURL } = fb;
+                const { db, storage, collection, addDoc, doc, setDoc, ref, uploadString, getDownloadURL } = await getFB();
                 
                 let docId = id;
                 let imageData = {
@@ -1017,7 +1012,7 @@
                 }
             } catch (error) {
                 console.error("Error uploading image:", error);
-                alert("Failed to initiate upload.");
+                alert("Failed to initiate upload: " + (error.message || error));
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1029,8 +1024,7 @@
         // Content Manager Logic
         async function loadCMSData() {
             try {
-                await fbPromise;
-                const { db, doc, getDoc } = fb;
+                const { db, doc, getDoc } = await getFB();
                 const docSnap = await getDoc(doc(db, "cms_content", "global"));
                 
                 if (docSnap.exists()) {
@@ -1100,8 +1094,7 @@
             };
 
             try {
-                await fbPromise;
-                const { db, doc, setDoc, storage, ref, uploadString, getDownloadURL, uploadBytes } = fb;
+                const { db, doc, setDoc, storage, ref, uploadString, getDownloadURL, uploadBytes } = await getFB();
                 
                 let heroUrl = document.getElementById('cms-hero-bg').value.trim();
                 let aboutUrl = document.getElementById('cms-about-img').value.trim();
@@ -1229,8 +1222,7 @@
             });
 
             try {
-                await fbPromise;
-                const { db, doc, onSnapshot } = fb;
+                const { db, doc, onSnapshot } = await getFB();
                 
                 dates.forEach((dateStr, index) => {
                     const unsub = onSnapshot(doc(db, "analytics", dateStr), (docSnap) => {
