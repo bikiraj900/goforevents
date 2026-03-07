@@ -907,6 +907,22 @@
             };
         };
 
+        // Auto-convert Google Drive sharing URLs to direct image URLs
+        function fixImageUrl(url) {
+            if (!url) return url;
+            // Pattern: https://drive.google.com/file/d/FILE_ID/view...
+            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (driveMatch) {
+                return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+            }
+            // Pattern: https://drive.google.com/open?id=FILE_ID
+            const driveOpen = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+            if (driveOpen) {
+                return `https://drive.google.com/uc?export=view&id=${driveOpen[1]}`;
+            }
+            return url;
+        }
+
         window.previewFile = () => {
             const file = document.getElementById('g-file').files[0];
             window.compressAndPreview(file, 'g-b64', 'g-preview', 'g-url', 'gallery');
@@ -925,7 +941,7 @@
             const date = document.getElementById('g-date').value;
             const location = document.getElementById('g-location').value;
             const category = document.getElementById('g-category').value;
-            const urlInput = document.getElementById('g-url').value.trim();
+            const urlInput = fixImageUrl(document.getElementById('g-url').value.trim());
             const b64 = document.getElementById('g-b64').value;
             
             if(!b64 && !urlInput) {
