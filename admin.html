@@ -270,12 +270,20 @@
                             <h4 style="margin-bottom:15px;">Global Images</h4>
 
                             <div class="form-group">
-                                <label class="form-label">Hero Banner Background (URL)</label>
-                                <input type="url" id="cms-hero-bg" class="form-control" placeholder="https://firebasestorage.googleapis.com/... or https://images.unsplash.com/...">
+                                <label class="form-label">Hero Banner Background</label>
+                                <div style="display:flex; gap:10px;">
+                                    <input type="url" id="cms-hero-bg" class="form-control" placeholder="Image URL (or upload local file 👉)">
+                                    <input type="file" id="cms-hero-file" accept="image/*" class="form-control" style="width:250px;" onchange="previewCmsHero()">
+                                    <input type="hidden" id="cms-hero-b64">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">About Us Side Graphic (URL)</label>
-                                <input type="url" id="cms-about-img" class="form-control" placeholder="https://firebasestorage.googleapis.com/...">
+                                <label class="form-label">About Us Side Graphic</label>
+                                <div style="display:flex; gap:10px;">
+                                    <input type="url" id="cms-about-img" class="form-control" placeholder="Image URL (or upload local file 👉)">
+                                    <input type="file" id="cms-about-file" accept="image/*" class="form-control" style="width:250px;" onchange="previewCmsAbout()">
+                                    <input type="hidden" id="cms-about-b64">
+                                </div>
                             </div>
                             
                             <hr style="margin:20px 0; border:1px solid #ddd;">
@@ -931,6 +939,30 @@
             }
         }
 
+        window.previewCmsHero = () => {
+            const file = document.getElementById('cms-hero-file').files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    document.getElementById('cms-hero-b64').value = reader.result;
+                    document.getElementById('cms-hero-bg').value = ''; 
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.previewCmsAbout = () => {
+            const file = document.getElementById('cms-about-file').files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    document.getElementById('cms-about-b64').value = reader.result;
+                    document.getElementById('cms-about-img').value = ''; 
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
         document.getElementById('cmsForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -950,8 +982,6 @@
                 home_service2_desc: document.getElementById('cms-service2').value,
                 home_service3_desc: document.getElementById('cms-service3').value,
                 footer_desc: document.getElementById('cms-footer').value,
-                hero_bg_url: document.getElementById('cms-hero-bg').value.trim(),
-                about_img_url: document.getElementById('cms-about-img').value.trim(),
                 t1: document.getElementById('cms-t1').value,
                 t1a: document.getElementById('cms-t1a').value,
                 t2: document.getElementById('cms-t2').value,
@@ -961,8 +991,37 @@
             };
 
             try {
-                const { db, doc, setDoc } = await import('./firebase-config-v2.js');
+                const { db, doc, setDoc, storage, ref, uploadString, getDownloadURL } = await import('./firebase-config-v2.js');
+                
+                let finalHeroUrl = document.getElementById('cms-hero-bg').value.trim();
+                let finalAboutUrl = document.getElementById('cms-about-img').value.trim();
+
+                const heroB64 = document.getElementById('cms-hero-b64').value;
+                const aboutB64 = document.getElementById('cms-about-b64').value;
+
+                if(heroB64) {
+                    const heroRef = ref(storage, `cms/hero_${Date.now()}`);
+                    await uploadString(heroRef, heroB64, 'data_url');
+                    finalHeroUrl = await getDownloadURL(heroRef);
+                    document.getElementById('cms-hero-bg').value = finalHeroUrl;
+                }
+
+                if(aboutB64) {
+                    const aboutRef = ref(storage, `cms/about_${Date.now()}`);
+                    await uploadString(aboutRef, aboutB64, 'data_url');
+                    finalAboutUrl = await getDownloadURL(aboutRef);
+                    document.getElementById('cms-about-img').value = finalAboutUrl;
+                }
+                
+                data.hero_bg_url = finalHeroUrl;
+                data.about_img_url = finalAboutUrl;
+
                 await setDoc(doc(db, "cms_content", "global"), data);
+                
+                document.getElementById('cms-hero-b64').value = '';
+                document.getElementById('cms-about-b64').value = '';
+                document.getElementById('cms-hero-file').value = '';
+                document.getElementById('cms-about-file').value = '';
                 
                 const msg = document.getElementById('cms-success-msg');
                 msg.style.display = 'inline-block';
