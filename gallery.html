@@ -64,28 +64,7 @@
             </div>
             
             <div class="gallery-grid reveal" id="gallery-container">
-                <!-- Default Images -->
-                <div class="gallery-item" data-category="wedding">
-                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop" alt="Wedding">
-                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                </div>
-                <div class="gallery-item" data-category="corporate">
-                    <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2000&auto=format&fit=crop" alt="Corporate">
-                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                </div>
-                <div class="gallery-item" data-category="party">
-                    <img src="https://images.unsplash.com/photo-1472653431158-6364773b2a56?q=80&w=2069&auto=format&fit=crop" alt="Birthday Party">
-                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                </div>
-                <div class="gallery-item" data-category="wedding">
-                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2069&auto=format&fit=crop" alt="Wedding Decor">
-                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                </div>
-                <div class="gallery-item" data-category="corporate">
-                    <img src="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?q=80&w=1974&auto=format&fit=crop" alt="Conference">
-                    <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                </div>
-                <!-- LocalStorage items will be appended here via JS -->
+                <!-- Firebase database images will render here dynamically -->
             </div>
         </div>
     </section>
@@ -170,17 +149,24 @@
                         <img src="${imgData.url}" alt="${imgData.category}">
                         <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
                     `;
-                    div.setAttribute('data-title', imgData.category);
-                    div.setAttribute('data-desc', 'A beautiful ' + imgData.category + ' event organized by Go For Events.');
+                    div.setAttribute('data-title', imgData.title || imgData.category);
+                    
+                    let metaStr = '';
+                    if(imgData.date) metaStr += imgData.date;
+                    if(imgData.date && imgData.location) metaStr += ' • ';
+                    if(imgData.location) metaStr += imgData.location;
+                    if(!metaStr) metaStr = 'A beautiful memory organized by Go For Events.';
+                    
+                    div.setAttribute('data-desc', metaStr);
                     
                     // Attach lightbox event directly as items are built dynamically
                     div.addEventListener('click', () => {
                         const imgSrc = div.querySelector('img').src;
-                        const title = div.getAttribute('data-title') || div.getAttribute('data-category') || 'Event Memory';
-                        const desc = div.getAttribute('data-desc') || 'A beautiful memory organized by Go For Events.';
+                        const title = div.getAttribute('data-title') || 'Event Memory';
+                        const desc = div.getAttribute('data-desc');
                         
                         document.getElementById('lightbox-img').src = imgSrc;
-                        document.getElementById('lightbox-title').textContent = title.charAt(0).toUpperCase() + title.slice(1);
+                        document.getElementById('lightbox-title').textContent = title;
                         document.getElementById('lightbox-desc').textContent = desc;
                         document.getElementById('lightbox').classList.add('active');
                     });
@@ -217,20 +203,7 @@
             });
         }
 
-        // Lightbox functionality (Hardcoded images only, dynamic ones handled in loadAdminImages)
-        const staticGalleryItems = document.querySelectorAll('.gallery-item[data-title]');
-        staticGalleryItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const imgSrc = item.querySelector('img').src;
-                const title = item.getAttribute('data-title') || item.getAttribute('data-category') || 'Event Memory';
-                const desc = item.getAttribute('data-desc') || 'A beautiful memory organized by Go For Events.';
-                
-                document.getElementById('lightbox-img').src = imgSrc;
-                document.getElementById('lightbox-title').textContent = title.charAt(0).toUpperCase() + title.slice(1);
-                document.getElementById('lightbox-desc').textContent = desc;
-                document.getElementById('lightbox').classList.add('active');
-            });
-        });
+        // Static lightbox bindings removed; everything is now dynamic.
 
         // Close Lightbox
         if(lightboxClose) {

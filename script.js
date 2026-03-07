@@ -19,9 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
                 const cmsData = docSnap.data();
                 document.querySelectorAll('[data-cms]').forEach(el => {
                     const key = el.getAttribute('data-cms');
-                    if (cmsData[key]) {
-                        el.textContent = cmsData[key];
-                    }
+                    if (cmsData[key]) el.textContent = cmsData[key];
+                });
+                document.querySelectorAll('[data-cms-bg]').forEach(el => {
+                    const key = el.getAttribute('data-cms-bg');
+                    if (cmsData[key]) el.style.backgroundImage = `url('${cmsData[key]}')`;
+                });
+                document.querySelectorAll('[data-cms-img]').forEach(el => {
+                    const key = el.getAttribute('data-cms-img');
+                    if (cmsData[key]) el.src = cmsData[key];
                 });
             }
         } catch (error) {
@@ -32,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {    // 1. Loader
                 document.querySelectorAll('[data-cms]').forEach(el => {
                     const key = el.getAttribute('data-cms');
                     if (backupData[key]) el.textContent = backupData[key];
+                });
+                document.querySelectorAll('[data-cms-bg]').forEach(el => {
+                    const key = el.getAttribute('data-cms-bg');
+                    if (backupData[key]) el.style.backgroundImage = `url('${backupData[key]}')`;
+                });
+                document.querySelectorAll('[data-cms-img]').forEach(el => {
+                    const key = el.getAttribute('data-cms-img');
+                    if (backupData[key]) el.src = backupData[key];
                 });
             }
         }
