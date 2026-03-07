@@ -228,7 +228,10 @@
                 const querySnapshot = await getDocs(collection(db, "gallery_images"));
                 let images = [];
                 querySnapshot.forEach((doc) => {
-                    images.push(doc.data());
+                    const data = doc.data();
+                    if(data.status !== 'uploading' && data.url) {
+                        images.push(data);
+                    }
                 });
                 
                 images.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));

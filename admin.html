@@ -727,10 +727,20 @@
                     images.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)).forEach(img => {
                         const div = document.createElement('div');
                         div.className = 'gallery-item-admin';
+                        
+                        const isUploading = img.status === 'uploading' || !img.url;
+                        const displayUrl = isUploading ? '' : img.url;
+
                         div.innerHTML = `
-                            <img src="${img.url}" alt="${img.title || img.category}">
+                            ${isUploading ? 
+                                `<div style="height:100%; min-height:180px; display:flex; align-items:center; justify-content:center; background:#1a1a1a; color:var(--primary-color); flex-direction:column; gap:10px; border-radius:var(--radius);">
+                                    <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                                    <span style="font-size:0.7rem;">Processing...</span>
+                                </div>` : 
+                                `<img src="${displayUrl}" alt="${img.title || img.category}">`
+                            }
                             <div class="gallery-actions">
-                                <button class="btn-icon btn-edit" onclick="openEditGallery('${img.id}')" style="width:28px; height:28px;"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-edit" onclick="openEditGallery('${img.id}')" style="width:28px; height:28px;" ${isUploading ? 'disabled' : ''} title="${isUploading ? 'Upload in progress...' : 'Edit Metadata'}"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="deleteGalleryImage('${img.id}', '${img.storagePath || ''}')" style="width:28px; height:28px;"><i class="fas fa-trash"></i></button>
                             </div>
                             <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); color:var(--primary-color); padding:8px; font-size:0.85rem; text-align:center; font-weight:500;">
@@ -913,48 +923,63 @@
 
             try {
                 const { db, storage, collection, addDoc, doc, setDoc, ref, uploadString, getDownloadURL } = await import('./firebase-config-v2.js');
-                let finalUrl = urlInput;
-                let storagePathStr = null;
-
-                // Check for background upload first (Instant Upload Optimization)
-                if(window.pendingGalleryUpload) {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing Background Upload...';
-                    const result = await window.pendingGalleryUpload;
-                    finalUrl = result.url;
-                    storagePathStr = result.path;
-                    window.pendingGalleryUpload = null; // reset
-                } else if(b64) {
-                    // Fallback to regular upload if background didn't start or was cleared
-                    const filename = `gallery/${Date.now()}_image`;
-                    const storageRef = ref(storage, filename);
-                    await uploadString(storageRef, b64, 'data_url');
-                    finalUrl = await getDownloadURL(storageRef);
-                    storagePathStr = filename;
-                }
-
-                const imageData = {
+                
+                let docId = id;
+                let imageData = {
                     title: title,
                     date: date,
                     location: location,
                     category: category,
-                    url: finalUrl,
-                    timestamp: Date.now(),
-                    storagePath: storagePathStr
+                    timestamp: Date.now()
                 };
 
+                // OPTIMISTIC SAVE & MODAL CLOSE
                 if (id) {
-                    // Update existing document
                     await setDoc(doc(db, "gallery_images", id), imageData, { merge: true });
                 } else {
-                    // Create new document
-                    await addDoc(collection(db, "gallery_images"), imageData);
+                    const docRef = await addDoc(collection(db, "gallery_images"), { ...imageData, status: 'uploading' });
+                    docId = docRef.id;
                 }
-                
-                loadGallery();
+
+                // CLOSE MODAL IMMEDIATELY - TRUE INSTANT FEEL
                 closeModal('galleryModal');
+                
+                // DECOUPLED ASYNC UPLOAD HANDLER
+                if(window.pendingGalleryUpload) {
+                    const uploadPromise = window.pendingGalleryUpload;
+                    window.pendingGalleryUpload = null; // reset for next use
+
+                    uploadPromise.then(async (result) => {
+                        await setDoc(doc(db, "gallery_images", docId), { 
+                            url: result.url, 
+                            storagePath: result.path,
+                            status: 'ready' 
+                        }, { merge: true });
+                    }).catch(err => {
+                        console.error("Background upload failed for doc:", docId, err);
+                        // Optional: mark as failed in DB
+                    });
+                } else if(b64) {
+                    // Fallback to regular upload if background didn't start or was cleared
+                    const filename = `gallery/${Date.now()}_image`;
+                    const storageRef = ref(storage, filename);
+                    uploadString(storageRef, b64, 'data_url').then(async () => {
+                        const url = await getDownloadURL(storageRef);
+                        await setDoc(doc(db, "gallery_images", docId), { 
+                            url: url, 
+                            storagePath: filename,
+                            status: 'ready' 
+                        }, { merge: true });
+                    });
+                } else if(urlInput) {
+                    await setDoc(doc(db, "gallery_images", docId), { 
+                        url: urlInput,
+                        status: 'ready' 
+                    }, { merge: true });
+                }
             } catch (error) {
                 console.error("Error uploading image:", error);
-                alert("Failed to upload image to the cloud.");
+                alert("Failed to initiate upload.");
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -1038,52 +1063,71 @@
             try {
                 const { db, doc, setDoc, storage, ref, uploadString, getDownloadURL } = await import('./firebase-config-v2.js');
                 
-                let finalHeroUrl = document.getElementById('cms-hero-bg').value.trim();
-                let finalAboutUrl = document.getElementById('cms-about-img').value.trim();
+                let heroUrl = document.getElementById('cms-hero-bg').value.trim();
+                let aboutUrl = document.getElementById('cms-about-img').value.trim();
 
                 const heroB64 = document.getElementById('cms-hero-b64').value;
                 const aboutB64 = document.getElementById('cms-about-b64').value;
 
-                // Process Hero Image optimized (Instant Upload support)
+                // Handle CMS Success Message Early
+                const showSuccess = () => {
+                    const msg = document.getElementById('cms-success-msg');
+                    msg.style.display = 'inline-block';
+                    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+                };
+
+                // Background Hero Upload
+                let heroUploadPromise = null;
                 if(window.pendingHeroUpload) {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing Hero Upload...';
-                    const res = await window.pendingHeroUpload;
-                    finalHeroUrl = res.url;
+                    heroUploadPromise = window.pendingHeroUpload;
                     window.pendingHeroUpload = null;
                 } else if(heroB64) {
                     const heroRef = ref(storage, `cms/hero_${Date.now()}`);
-                    await uploadString(heroRef, heroB64, 'data_url');
-                    finalHeroUrl = await getDownloadURL(heroRef);
+                    heroUploadPromise = (async () => {
+                        await uploadString(heroRef, heroB64, 'data_url');
+                        return { url: await getDownloadURL(heroRef) };
+                    })();
                 }
 
-                // Process About Image optimized (Instant Upload support)
+                // Background About Upload
+                let aboutUploadPromise = null;
                 if(window.pendingAboutUpload) {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing About Upload...';
-                    const res = await window.pendingAboutUpload;
-                    finalAboutUrl = res.url;
+                    aboutUploadPromise = window.pendingAboutUpload;
                     window.pendingAboutUpload = null;
                 } else if(aboutB64) {
                     const aboutRef = ref(storage, `cms/about_${Date.now()}`);
-                    await uploadString(aboutRef, aboutB64, 'data_url');
-                    finalAboutUrl = await getDownloadURL(aboutRef);
+                    aboutUploadPromise = (async () => {
+                        await uploadString(aboutRef, aboutB64, 'data_url');
+                        return { url: await getDownloadURL(aboutRef) };
+                    })();
                 }
-                
-                data.hero_bg_url = finalHeroUrl;
-                data.about_img_url = finalAboutUrl;
 
+                // Initial Save with current data
+                data.hero_bg_url = heroUrl;
+                data.about_img_url = aboutUrl;
                 await setDoc(doc(db, "cms_content", "global"), data);
-                
+                showSuccess();
+
+                // Handle Async Image Updates
+                if (heroUploadPromise) {
+                    heroUploadPromise.then(async (res) => {
+                        await setDoc(doc(db, "cms_content", "global"), { hero_bg_url: res.url }, { merge: true });
+                    });
+                }
+                if (aboutUploadPromise) {
+                    aboutUploadPromise.then(async (res) => {
+                        await setDoc(doc(db, "cms_content", "global"), { about_img_url: res.url }, { merge: true });
+                    });
+                }
+
                 document.getElementById('cms-hero-b64').value = '';
                 document.getElementById('cms-about-b64').value = '';
                 document.getElementById('cms-hero-file').value = '';
                 document.getElementById('cms-about-file').value = '';
-                
-                const msg = document.getElementById('cms-success-msg');
-                msg.style.display = 'inline-block';
-                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+
             } catch (error) {
                 console.error("Error saving CMS data:", error);
-                alert("Failed to save CMS data to the cloud.");
+                alert("Failed to save CMS data.");
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
