@@ -72,7 +72,7 @@
         /* Modal Info */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--card-bg); width: 90%; max-width: 500px; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 500px; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h3 { margin: 0; color: var(--primary-color); }
         .modal-close { cursor: pointer; font-size: 1.5rem; color: var(--text-color); }
@@ -399,24 +399,18 @@
             <form id="galleryForm">
                 <input type="hidden" id="g-id">
                 <input type="hidden" id="g-b64">
+                <input type="hidden" id="g-b64">
                 
                 <div class="form-group">
-                    <label class="form-label">Photo Upload</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="g-file" accept="image/*" onchange="previewFile()">
-                        <i class="fas fa-cloud-upload-alt" id="g-icon"></i>
-                        <p id="g-text">Click or Drag an image here</p>
-                        <img src="" class="preview-img" id="g-preview">
+                    <label class="form-label">Photo Source</label>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <input type="url" id="g-url" class="form-control" placeholder="Image URL (or choose file 👉)">
+                        <input type="file" id="g-file" accept="image/*" class="form-control" style="width:250px;" onchange="previewFile()">
                     </div>
                 </div>
-                
-                <div class="form-group" style="text-align:center; color:var(--text-muted); font-size:0.9rem;">
-                    -- OR --
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">External Image URL (Fallback)</label>
-                    <input type="url" id="g-url" class="form-control" placeholder="https://unsplash.com/...">
+
+                <div class="form-group" style="text-align:center;">
+                    <img src="" id="g-preview" style="display:none; width:100%; height:180px; object-fit:cover; border-radius:var(--radius); border:1px solid var(--border-color); margin-bottom:15px;">
                 </div>
 
                 <div class="form-group">
@@ -713,9 +707,12 @@
                 if(unsubGallery) unsubGallery();
                 
                 unsubGallery = onSnapshot(collection(db, "gallery_images"), (querySnapshot) => {
+                    window.adminGalleryMap = {};
                     let images = [];
                     querySnapshot.forEach((doc) => {
-                        images.push({ id: doc.id, ...doc.data() });
+                        const imgData = { id: doc.id, ...doc.data() };
+                        images.push(imgData);
+                        window.adminGalleryMap[doc.id] = imgData;
                     });
                     
                     grid.innerHTML = '';
@@ -733,7 +730,7 @@
                         div.innerHTML = `
                             <img src="${img.url}" alt="${img.title || img.category}">
                             <div class="gallery-actions">
-                                <button class="btn-icon btn-edit" onclick='openEditGallery(${JSON.stringify(img).replace(/'/g, "&apos;")})' style="width:28px; height:28px;"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-edit" onclick="openEditGallery('${img.id}')" style="width:28px; height:28px;"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="deleteGalleryImage('${img.id}', '${img.storagePath || ''}')" style="width:28px; height:28px;"><i class="fas fa-trash"></i></button>
                             </div>
                             <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); color:var(--primary-color); padding:8px; font-size:0.85rem; text-align:center; font-weight:500;">
@@ -794,22 +791,28 @@
             document.getElementById('galleryModal').classList.add('active');
         };
 
-        window.openEditGallery = (img) => {
+        window.openEditGallery = (id) => {
+            const img = window.adminGalleryMap[id];
+            if(!img) return;
+            
             document.getElementById('galleryForm').reset();
             document.getElementById('g-id').value = img.id;
-            document.getElementById('g-url').value = img.url.startsWith('data:') ? '' : img.url;
+            
+            if(img.url.startsWith('data:')) {
+                document.getElementById('g-b64').value = img.url;
+                document.getElementById('g-url').value = '';
+            } else {
+                document.getElementById('g-b64').value = '';
+                document.getElementById('g-url').value = img.url;
+            }
+            
             document.getElementById('g-title').value = img.title || '';
             document.getElementById('g-date').value = img.date || '';
             document.getElementById('g-location').value = img.location || '';
             document.getElementById('g-category').value = img.category;
             
-            if(img.url.startsWith('data:')) {
-                document.getElementById('g-b64').value = img.url;
-                document.getElementById('g-preview').src = img.url;
-                document.getElementById('g-preview').style.display = 'block';
-                document.getElementById('g-icon').style.display = 'none';
-                document.getElementById('g-text').style.display = 'none';
-            }
+            document.getElementById('g-preview').src = img.url;
+            document.getElementById('g-preview').style.display = 'block';
             
             document.getElementById('galleryModalTitle').textContent = 'Edit Image Metadata';
             document.getElementById('galleryModal').classList.add('active');
@@ -823,8 +826,6 @@
                     document.getElementById('g-b64').value = reader.result;
                     document.getElementById('g-preview').src = reader.result;
                     document.getElementById('g-preview').style.display = 'block';
-                    document.getElementById('g-icon').style.display = 'none';
-                    document.getElementById('g-text').style.display = 'none';
                     document.getElementById('g-url').value = ''; // clear url if file is selected
                 };
                 reader.readAsDataURL(file);
