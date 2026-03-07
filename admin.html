@@ -816,17 +816,22 @@
             document.getElementById('galleryModal').classList.add('active');
         };
 
-        window.compressAndPreview = (file, b64InputId, previewImgId, urlInputId = null) => {
+        // Global variables to track background uploads
+        window.pendingGalleryUpload = null;
+        window.pendingHeroUpload = null;
+        window.pendingAboutUpload = null;
+
+        window.compressAndPreview = (file, b64InputId, previewImgId, urlInputId = null, uploadType = 'gallery') => {
             if (!file) return;
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
-                img.onload = () => {
+                img.onload = async () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1200;
-                    const MAX_HEIGHT = 1200;
+                    const MAX_WIDTH = 1000; // Aggressive reduction
+                    const MAX_HEIGHT = 1000;
                     let width = img.width;
                     let height = img.height;
 
@@ -840,7 +845,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    const compressedDataUrl = canvas.toDataURL('image/webp', 0.85);
+                    // Higher compression (0.7 quality)
+                    const compressedDataUrl = canvas.toDataURL('image/webp', 0.7);
                     
                     document.getElementById(b64InputId).value = compressedDataUrl;
                     if(previewImgId) {
@@ -851,13 +857,35 @@
                         }
                     }
                     if(urlInputId) document.getElementById(urlInputId).value = '';
+
+                    // START BACKGROUND UPLOAD IMMEDIATELY
+                    console.log(`Starting background upload for ${uploadType}...`);
+                    try {
+                        const { storage, ref, uploadString, getDownloadURL } = await import('./firebase-config-v2.js');
+                        const folder = uploadType === 'gallery' ? 'gallery' : 'cms';
+                        const filename = `${folder}/${Date.now()}_bg_upload`;
+                        const storageRef = ref(storage, filename);
+                        
+                        const uploadPromise = (async () => {
+                            await uploadString(storageRef, compressedDataUrl, 'data_url');
+                            const url = await getDownloadURL(storageRef);
+                            return { url, path: filename };
+                        })();
+
+                        if (uploadType === 'gallery') window.pendingGalleryUpload = uploadPromise;
+                        else if (uploadType === 'hero') window.pendingHeroUpload = uploadPromise;
+                        else if (uploadType === 'about') window.pendingAboutUpload = uploadPromise;
+                        
+                    } catch (err) {
+                        console.error("Background upload failed:", err);
+                    }
                 };
             };
         };
 
         window.previewFile = () => {
             const file = document.getElementById('g-file').files[0];
-            window.compressAndPreview(file, 'g-b64', 'g-preview', 'g-url');
+            window.compressAndPreview(file, 'g-b64', 'g-preview', 'g-url', 'gallery');
         };
 
         document.getElementById('galleryForm').addEventListener('submit', async (e) => {
@@ -888,18 +916,20 @@
                 let finalUrl = urlInput;
                 let storagePathStr = null;
 
-                // If user selected a physical file (b64 is populated)
-                if(b64) {
-                    // Create a unique filename in Firebase Storage
+                // Check for background upload first (Instant Upload Optimization)
+                if(window.pendingGalleryUpload) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing Background Upload...';
+                    const result = await window.pendingGalleryUpload;
+                    finalUrl = result.url;
+                    storagePathStr = result.path;
+                    window.pendingGalleryUpload = null; // reset
+                } else if(b64) {
+                    // Fallback to regular upload if background didn't start or was cleared
                     const filename = `gallery/${Date.now()}_image`;
                     const storageRef = ref(storage, filename);
-                    
-                    // Upload Base64 string to Cloud Storage
                     await uploadString(storageRef, b64, 'data_url');
-                    
-                    // Get the public viewing URL
                     finalUrl = await getDownloadURL(storageRef);
-                    storagePathStr = filename; // Save path so we can delete it later
+                    storagePathStr = filename;
                 }
 
                 const imageData = {
@@ -970,12 +1000,12 @@
 
         window.previewCmsHero = () => {
             const file = document.getElementById('cms-hero-file').files[0];
-            window.compressAndPreview(file, 'cms-hero-b64', null, 'cms-hero-bg');
+            window.compressAndPreview(file, 'cms-hero-b64', null, 'cms-hero-bg', 'hero');
         };
 
         window.previewCmsAbout = () => {
             const file = document.getElementById('cms-about-file').files[0];
-            window.compressAndPreview(file, 'cms-about-b64', null, 'cms-about-img');
+            window.compressAndPreview(file, 'cms-about-b64', null, 'cms-about-img', 'about');
         };
 
         document.getElementById('cmsForm').addEventListener('submit', async (e) => {
@@ -1014,18 +1044,28 @@
                 const heroB64 = document.getElementById('cms-hero-b64').value;
                 const aboutB64 = document.getElementById('cms-about-b64').value;
 
-                if(heroB64) {
+                // Process Hero Image optimized (Instant Upload support)
+                if(window.pendingHeroUpload) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing Hero Upload...';
+                    const res = await window.pendingHeroUpload;
+                    finalHeroUrl = res.url;
+                    window.pendingHeroUpload = null;
+                } else if(heroB64) {
                     const heroRef = ref(storage, `cms/hero_${Date.now()}`);
                     await uploadString(heroRef, heroB64, 'data_url');
                     finalHeroUrl = await getDownloadURL(heroRef);
-                    document.getElementById('cms-hero-bg').value = finalHeroUrl;
                 }
 
-                if(aboutB64) {
+                // Process About Image optimized (Instant Upload support)
+                if(window.pendingAboutUpload) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finishing About Upload...';
+                    const res = await window.pendingAboutUpload;
+                    finalAboutUrl = res.url;
+                    window.pendingAboutUpload = null;
+                } else if(aboutB64) {
                     const aboutRef = ref(storage, `cms/about_${Date.now()}`);
                     await uploadString(aboutRef, aboutB64, 'data_url');
                     finalAboutUrl = await getDownloadURL(aboutRef);
-                    document.getElementById('cms-about-img').value = finalAboutUrl;
                 }
                 
                 data.hero_bg_url = finalHeroUrl;
