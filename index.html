@@ -140,7 +140,30 @@
         </div>
     </section>
 
+    <!-- Gallery Preview -->
+    <section class="section" style="background-color: var(--card-bg);">
+        <div class="container text-center">
+            <h2 class="section-title reveal">Gallery Preview</h2>
+            <p class="section-subtitle reveal">Our Best Moments</p>
+            <div class="services-grid" id="home-gallery">
+                <div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem; margin-bottom:15px; color:var(--primary-color);"></i>
+                    <p>Loading latest moments...</p>
+                </div>
+            </div>
+            <a href="/gallery" class="btn btn-outline" style="margin-top:40px;">View Full Gallery</a>
+        </div>
+    </section>
 
+    <!-- Lightbox for Homepage Gallery -->
+    <div class="lightbox" id="home-lightbox">
+        <span class="lightbox-close" id="home-lightbox-close">&times;</span>
+        <img src="" alt="Fullscreen Image" id="home-lightbox-img">
+        <div class="lightbox-details">
+            <h3 id="home-lightbox-title"></h3>
+            <p id="home-lightbox-desc"></p>
+        </div>
+    </div>
 
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/919864926253" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
@@ -196,7 +219,74 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
         
+        const homeLightbox = document.getElementById('home-lightbox');
+        const homeLightboxClose = document.getElementById('home-lightbox-close');
 
+        async function loadHomeGallery() {
+            try {
+                const { db, collection, getDocs } = await import('./firebase-config-v2.js');
+                const querySnapshot = await getDocs(collection(db, "gallery_images"));
+                let images = [];
+                querySnapshot.forEach((doc) => {
+                    images.push(doc.data());
+                });
+                
+                images.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                images = images.slice(0, 3);
+                
+                const grid = document.getElementById('home-gallery');
+                if(!grid) return;
+                
+                grid.innerHTML = '';
+                
+                if(images.length === 0) {
+                    grid.innerHTML = '<p style="grid-column:1/-1; color:var(--text-muted); padding:30px;">More gallery updates coming soon!</p>';
+                    return;
+                }
+                
+                images.forEach((img, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item reveal';
+                    div.setAttribute('data-title', img.title || 'Event Showcase');
+                    div.setAttribute('data-desc', `${img.date || ''} ${img.location ? '• ' + img.location : ''}`);
+                    
+                    div.innerHTML = `<img src="${img.url}" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer; height:250px; object-fit:cover;" alt="${img.title || 'Gallery Image'}">`;
+                    grid.appendChild(div);
+                });
+                
+                if(typeof revealElements === 'function') revealElements();
+                
+                const homeGalleryItems = document.querySelectorAll('#home-gallery .gallery-item');
+                const homeLightboxImg = document.getElementById('home-lightbox-img');
+                const homeLightboxTitle = document.getElementById('home-lightbox-title');
+                const homeLightboxDesc = document.getElementById('home-lightbox-desc');
+                
+                homeGalleryItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        homeLightboxImg.src = item.querySelector('img').src;
+                        homeLightboxTitle.textContent = item.getAttribute('data-title');
+                        homeLightboxDesc.textContent = item.getAttribute('data-desc');
+                        homeLightbox.classList.add('active');
+                    });
+                });
+                
+            } catch(e) {
+                console.error("Error loading home gallery:", e);
+                const grid = document.getElementById('home-gallery');
+                if(grid) grid.innerHTML = '<p style="grid-column:1/-1; color:var(--text-muted);">Failed to load latest gallery snippets.</p>';
+            }
+        }
+        
+        if (homeLightboxClose && homeLightbox) {
+            homeLightboxClose.addEventListener('click', () => {
+                homeLightbox.classList.remove('active');
+            });
+            homeLightbox.addEventListener('click', (e) => {
+                if(e.target === homeLightbox) homeLightbox.classList.remove('active');
+            });
+        }
+        
+        loadHomeGallery();
     </script>
 </body>
 </html>
