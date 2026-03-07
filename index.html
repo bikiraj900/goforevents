@@ -140,35 +140,7 @@
         </div>
     </section>
 
-    <!-- Gallery Preview -->
-    <section class="section" style="background-color: var(--card-bg);">
-        <div class="container text-center">
-            <h2 class="section-title reveal">Gallery Preview</h2>
-            <p class="section-subtitle reveal">Our Best Moments</p>
-            <div class="services-grid" id="home-gallery">
-                <div class="gallery-item reveal" data-title="Elegant Wedding Setup" data-desc="Fairytale lighting and premium floral decor.">
-                    <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=2069&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 1">
-                </div>
-                <div class="gallery-item reveal" data-title="Corporate Tech Conference" data-desc="Modern stage design with immersive visuals.">
-                    <img src="https://images.unsplash.com/photo-1540317580384-e5d43616b9aa?q=80&w=1974&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 2">
-                </div>
-                <div class="gallery-item reveal" data-title="Outdoor Festival" data-desc="Vibrant music festival with massive crowd engagement.">
-                    <img src="https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=1976&auto=format&fit=crop" class="service-img" style="border-radius:var(--radius); box-shadow:var(--shadow-md); cursor:pointer;" alt="Gallery 3">
-                </div>
-            </div>
-            <a href="/gallery" class="btn btn-outline" style="margin-top:40px;">View Full Gallery</a>
-        </div>
-    </section>
 
-    <!-- Lightbox for Homepage Gallery -->
-    <div class="lightbox" id="home-lightbox">
-        <span class="lightbox-close" id="home-lightbox-close">&times;</span>
-        <img src="" alt="Fullscreen Image" id="home-lightbox-img">
-        <div class="lightbox-details">
-            <h3 id="home-lightbox-title"></h3>
-            <p id="home-lightbox-desc"></p>
-        </div>
-    </div>
 
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/919864926253" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
@@ -224,36 +196,7 @@
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
         
-        // Homepage Lightbox Logic
-        const homeGalleryItems = document.querySelectorAll('#home-gallery .gallery-item');
-        const homeLightbox = document.getElementById('home-lightbox');
-        const homeLightboxImg = document.getElementById('home-lightbox-img');
-        const homeLightboxTitle = document.getElementById('home-lightbox-title');
-        const homeLightboxDesc = document.getElementById('home-lightbox-desc');
-        const homeLightboxClose = document.getElementById('home-lightbox-close');
 
-        if(homeGalleryItems && homeLightbox) {
-            homeGalleryItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const imgSrc = item.querySelector('img').src;
-                    const title = item.getAttribute('data-title');
-                    const desc = item.getAttribute('data-desc');
-                    
-                    homeLightboxImg.src = imgSrc;
-                    homeLightboxTitle.textContent = title;
-                    homeLightboxDesc.textContent = desc;
-                    homeLightbox.classList.add('active');
-                });
-            });
-            
-            homeLightboxClose.addEventListener('click', () => {
-                homeLightbox.classList.remove('active');
-            });
-            
-            homeLightbox.addEventListener('click', (e) => {
-                if(e.target === homeLightbox) homeLightbox.classList.remove('active');
-            });
-        }
     </script>
 </body>
 </html>
