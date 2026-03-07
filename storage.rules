@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Craft rules based on access logic
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper to check if user is a logged-in Admin
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Allow Admin full read/write, allow Public only read access
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+  }
+}
